@@ -1,0 +1,13 @@
+diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
+index cebb6238c..a7a429272 100644
+--- a/youtube_dl/extractor/twitter.py
++++ b/youtube_dl/extractor/twitter.py
+@@ -175,7 +175,7 @@ class TwitterCardIE(TwitterBaseIE):
+                 u, video_id, headers={'Referer': 'https://twitter.com/'})
+ 
+             iframe_url = self._html_search_regex(
+-                r'<iframe[^>]+src="((?:https?:)?//(?:www\.youtube\.com/embed/[^"]+|(?:www\.)?vine\.co/v/\w+/card))"',
++                r'<iframe[^>]+src="((?:https?:)?//(?:www\.)?vine\.co/v/\w+/card)"',
+                 webpage, 'video iframe', default=None)
+             if iframe_url:
+                 return self.url_result(iframe_url)
