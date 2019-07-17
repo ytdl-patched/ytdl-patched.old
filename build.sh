@@ -16,7 +16,7 @@ echo "from __future__ import unicode_literals
 __version__ = '${LATEST_VERSION}'
 " > youtube_dl/version.py
 
-for i in "$(ls ../../patches)" ; do
+for i in $(ls ../../patches) ; do
   patch -p1 < "../../patches/$i"
 done
 make youtube-dl
