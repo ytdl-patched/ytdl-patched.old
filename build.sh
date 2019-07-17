@@ -20,15 +20,18 @@ __version__ = '${LATEST_VERSION}'
 for i in $(ls ../../patches) ; do
   patch -p1 < "../../patches/$i"
 done
-make youtube-dl
+make youtube-dl youtube-dl.tar.gz
 
 cd ../../
 mv tmp/ytdl/youtube-dl artifacts
+mv tmp/ytdl/youtube-dl.tar.gz artifacts
 
 rm -rf tmp
 
-FILEHASH="$(sha256sum artifacts/youtube-dl | awk '{print $1}')"
+FILEHASH_BIN="$(sha256sum artifacts/youtube-dl | awk '{print $1}')"
+FILEHASH_TAR="$(sha256sum artifacts/youtube-dl.tar.gz | awk '{print $1}')"
 
 echo '{"versions":{}}' | jq ".latest=\"${LATEST_VERSION}\"" \
-  | jq ".versions[\"${LATEST_VERSION}\"].bin=[\"https://nao20010128nao.github.io/ytdl-patched/youtube-dl\",\"${FILEHASH}\"]" \
+  | jq ".versions[\"${LATEST_VERSION}\"].bin=[\"https://nao20010128nao.github.io/ytdl-patched/youtube-dl\",\"${FILEHASH_BIN}\"]" \
+  | jq ".versions[\"${LATEST_VERSION}\"].tar=[\"https://nao20010128nao.github.io/ytdl-patched/youtube-dl.tar.gz\",\"${FILEHASH_TAR}\"]" \
   | tee artifacts/versions.json
