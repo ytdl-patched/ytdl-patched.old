@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+export TZ=Etc/UTC
 
 mkdir artifacts
 
