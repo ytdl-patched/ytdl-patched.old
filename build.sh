@@ -10,6 +10,6 @@ done
 make youtube-dl
 
 cd ../../
-mv tmp/ytdl/bin/youtube-dl .
+mv tmp/ytdl/youtube-dl .
 
 rm -rf tmp
