@@ -1,0 +1,13 @@
+diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
+index 70416c25e..d5f0d5e8d 100644
+--- a/youtube_dl/postprocessor/ffmpeg.py
++++ b/youtube_dl/postprocessor/ffmpeg.py
+@@ -362,6 +362,8 @@ class FFmpegVideoConvertorPP(FFmpegPostProcessor):
+         options = []
+         if self._preferedformat == 'avi':
+             options.extend(['-c:v', 'libxvid', '-vtag', 'XVID'])
++        if self._preferedformat == 'mkv':
++            options.extend(['-c:v', 'copy', '-c:a', 'copy'])
+         prefix, sep, ext = path.rpartition('.')
+         outpath = prefix + sep + self._preferedformat
+         self._downloader.to_screen('[' + 'ffmpeg' + '] Converting video from %s to %s, Destination: ' % (information['ext'], self._preferedformat) + outpath)
