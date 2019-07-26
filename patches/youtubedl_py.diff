@@ -1,0 +1,35 @@
+diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
+index 3e832fec2..96e3c495d 100755
+--- a/youtube_dl/YoutubeDL.py
++++ b/youtube_dl/YoutubeDL.py
+@@ -847,7 +847,7 @@ class YoutubeDL(object):
+         """
+         result_type = ie_result.get('_type', 'video')
+ 
+-        if result_type in ('url', 'url_transparent'):
++        if result_type in ('url', 'url_transparent', 'url_transparent_id'):
+             ie_result['url'] = sanitize_url(ie_result['url'])
+             extract_flat = self.params.get('extract_flat', False)
+             if ((extract_flat == 'in_playlist' and 'playlist' in extra_info)
+@@ -866,7 +866,7 @@ class YoutubeDL(object):
+                                      download,
+                                      ie_key=ie_result.get('ie_key'),
+                                      extra_info=extra_info)
+-        elif result_type == 'url_transparent':
++        elif result_type in ('url_transparent', 'url_transparent_id'):
+             # Use the information from the embedding page
+             info = self.extract_info(
+                 ie_result['url'], ie_key=ie_result.get('ie_key'),
+@@ -880,7 +880,11 @@ class YoutubeDL(object):
+ 
+             force_properties = dict(
+                 (k, v) for k, v in ie_result.items() if v is not None)
+-            for f in ('_type', 'url', 'id', 'extractor', 'extractor_key', 'ie_key'):
++            if result_type == 'url_transparent':
++                rmprops = ('_type', 'url', 'id', 'extractor', 'extractor_key', 'ie_key')
++            else:
++                rmprops = ('_type', 'url', 'extractor', 'extractor_key', 'ie_key')
++            for f in rmprops:
+                 if f in force_properties:
+                     del force_properties[f]
+             new_result = info.copy()
