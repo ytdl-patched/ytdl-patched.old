@@ -6,7 +6,7 @@ index 859786617..89007dc53 100644
      @staticmethod
      def playlist_result(entries, playlist_id=None, playlist_title=None, playlist_description=None):
          """Returns a playlist"""
-+        if len(entries) == 1:
++        if isinstance(entries, list) and len(entries) == 1:
 +            return entries[0]
 +
          video_info = {'_type': 'playlist',
