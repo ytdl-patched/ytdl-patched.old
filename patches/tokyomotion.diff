@@ -12,18 +12,20 @@ index 06de556b7..98781f696 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..f5373aa96
+index 000000000..b29704a30
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,50 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
 +from .common import InfoExtractor
-+
++from ..utils import (
++    sanitized_Request,
++)
 +
 +class TokyoMotion2IE(InfoExtractor):
-+    _VALID_URL = r'(?P<url>https?://(?:www\.)?tokyomotion\.net/video/(?P<id>[0-9]+)/[^#?&]+)(?:#.+)?'
++    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]+)(?:#.*)?'
 +    _TEST = {
 +        'url': 'https://www.tokyomotion.net/video/915034/%E9%80%86%E3%81%95',
 +        'info_dict': {
@@ -36,7 +38,31 @@ index 000000000..f5373aa96
 +    def _real_extract(self, url):
 +        video_id = self._match_id(url)
 +        url = self._VALID_URL_RE.match(url).group('url')
-+        # Ask the hero called generic to do the remaining
-+        res = self.url_result(url, 'Generic', video_id)
-+        res['_type'] = 'url_transparent_id'
-+        return res
++        variant = self._VALID_URL_RE.match(url).group('variant')
++
++        try:
++            # Why can't I use this method!?
++            webpage = self._download_webpage(url, video_id)
++        except: # Above always fail, this will be used
++            request = sanitized_Request(url)
++            request.add_header('Accept-Encoding', '*')
++            full_response = self._request_webpage(request, video_id)
++            webpage = self._webpage_read_content(full_response, url, video_id)
++
++        title = self._og_search_title(webpage, fatal=False)
++        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
++        variant_name = 'TokyoMotion' if variant == 'tokyo' else 'OsakaMotion'
++        if entries:
++            entry = entries[0]
++            entry.update({
++                'id': video_id,
++                'title': title,
++                'age_limit': 18,
++                'series': variant_name,
++            })
++            self._sort_formats(entry['formats'])
++            return entry
++        else:
++            res = self.url_result(url, 'Generic', video_id)
++            res['_type'] = 'url_transparent_id'
++            return res
