@@ -12,10 +12,10 @@ index 06de556b7..98781f696 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..b29704a30
+index 000000000..a7bd28bfb
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,51 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -49,7 +49,8 @@ index 000000000..b29704a30
 +            full_response = self._request_webpage(request, video_id)
 +            webpage = self._webpage_read_content(full_response, url, video_id)
 +
-+        title = self._og_search_title(webpage, fatal=False)
++        title = self._og_search_title(webpage, default=None)
++
 +        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
 +        variant_name = 'TokyoMotion' if variant == 'tokyo' else 'OsakaMotion'
 +        if entries:
