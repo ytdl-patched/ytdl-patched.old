@@ -1,5 +1,5 @@
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 15f54a214..d8e45519b 100644
+index 06de556b7..98781f696 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -1165,6 +1165,7 @@ from .tnaflix import (
@@ -12,10 +12,10 @@ index 15f54a214..d8e45519b 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..40941a220
+index 000000000..f5373aa96
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,24 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -23,7 +23,7 @@ index 000000000..40941a220
 +
 +
 +class TokyoMotion2IE(InfoExtractor):
-+    _VALID_URL = r'https?://(?:www\.)?tokyomotion\.net/video/(?P<id>[0-9]+)/.+'
++    _VALID_URL = r'(?P<url>https?://(?:www\.)?tokyomotion\.net/video/(?P<id>[0-9]+)/[^#?&]+)(?:#.+)?'
 +    _TEST = {
 +        'url': 'https://www.tokyomotion.net/video/915034/%E9%80%86%E3%81%95',
 +        'info_dict': {
@@ -35,6 +35,7 @@ index 000000000..40941a220
 +
 +    def _real_extract(self, url):
 +        video_id = self._match_id(url)
++        url = self._VALID_URL_RE.match(url).group('url')
 +        # Ask the hero called generic to do the remaining
 +        res = self.url_result(url, 'Generic', video_id)
 +        res['_type'] = 'url_transparent_id'
