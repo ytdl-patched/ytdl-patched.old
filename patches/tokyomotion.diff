@@ -12,7 +12,7 @@ index 06de556b7..98781f696 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..a7bd28bfb
+index 000000000..f0b49c359
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,51 @@
@@ -55,15 +55,15 @@ index 000000000..a7bd28bfb
 +        variant_name = 'TokyoMotion' if variant == 'tokyo' else 'OsakaMotion'
 +        if entries:
 +            entry = entries[0]
-+            entry.update({
-+                'id': video_id,
-+                'title': title,
-+                'age_limit': 18,
-+                'series': variant_name,
-+            })
 +            self._sort_formats(entry['formats'])
-+            return entry
 +        else:
-+            res = self.url_result(url, 'Generic', video_id)
-+            res['_type'] = 'url_transparent_id'
-+            return res
++            self.to_screen('Extraction failed. Falling back to generic.')
++            entry = self.url_result(url, 'Generic', video_id)
++            entry['_type'] = 'url_transparent_id'
++        entry.update({
++            'id': video_id,
++            'title': title,
++            'age_limit': 18,
++            'series': variant_name,
++        })
++        return entry
