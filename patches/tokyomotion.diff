@@ -15,10 +15,10 @@ index 06de556b7..01c23c1c5 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..b28d15e6f
+index 000000000..9c00657fc
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,114 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -60,7 +60,7 @@ index 000000000..b28d15e6f
 +    def _real_extract(self, url):
 +        video_id = self._match_id(url)
 +        url = self._VALID_URL_RE.match(url).group('url')
-+        self.to_screen(url)
++        #self.to_screen(url)
 +        variant = self._VALID_URL_RE.match(url).group('variant')
 +        webpage = self.download_page(url, video_id)
 +
@@ -105,8 +105,31 @@ index 000000000..b28d15e6f
 +            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
 +                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
 +            index = index + 1
-+            if ('videos?page=%d' % index) not in webpage:
++            if ('videos?page=%d"' % index) not in webpage:
 +                break
 +        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Uploads from %s' % user_id)
++
++class TokyoMotionUserFavs2IE(TokyoMotion2BaseIE):
++    IE_NAME = 'tokyomotion:user:favs'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/favorite/videos'
++    _TEST = {}
++    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/favorite/videos?page=%d'
++
++    def _real_extract(self, url):
++        user_id = self._match_id(url)
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        index = 1
++        all_matches = []
++        while True:
++            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
++            #self.to_screen(newurl)
++            self.to_screen('Downloading page %d' % index)
++            webpage = self.download_page(newurl, user_id)
++            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
++                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
++            index = index + 1
++            if ('videos?page=%d"' % index) not in webpage:
++                break
++        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Favorites from %s' % user_id)
 +
 +# TODO: searches, and playlists if any
