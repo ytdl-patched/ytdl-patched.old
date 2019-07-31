@@ -15,7 +15,7 @@ index 06de556b7..01c23c1c5 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..9c00657fc
+index 000000000..37e0ebcf1
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,114 @@
@@ -83,7 +83,7 @@ index 000000000..9c00657fc
 +
 +class TokyoMotionUser2IE(TokyoMotion2BaseIE):
 +    IE_NAME = 'tokyomotion:user'
-+    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)(?:/videos)?'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/videos'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/videos?page=%d'
 +
