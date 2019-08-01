@@ -1,0 +1,303 @@
+diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
+index 3e832fec2..4a4c19415 100755
+--- a/youtube_dl/YoutubeDL.py
++++ b/youtube_dl/YoutubeDL.py
+@@ -561,7 +561,8 @@ class YoutubeDL(object):
+     def __exit__(self, *args):
+         self.restore_console_title()
+ 
+-        if self.params.get('cookiefile') is not None:
++        opts_cookiefile = self.params.get('cookiefile')
++        if opts_cookiefile is not None and os.path.exists(opts_cookiefile):
+             self.cookiejar.save(ignore_discard=True, ignore_expires=True)
+ 
+     def trouble(self, message=None, tb=None):
+@@ -847,7 +848,7 @@ class YoutubeDL(object):
+         """
+         result_type = ie_result.get('_type', 'video')
+ 
+-        if result_type in ('url', 'url_transparent'):
++        if result_type in ('url', 'url_transparent', 'url_transparent_id'):
+             ie_result['url'] = sanitize_url(ie_result['url'])
+             extract_flat = self.params.get('extract_flat', False)
+             if ((extract_flat == 'in_playlist' and 'playlist' in extra_info)
+@@ -866,7 +867,7 @@ class YoutubeDL(object):
+                                      download,
+                                      ie_key=ie_result.get('ie_key'),
+                                      extra_info=extra_info)
+-        elif result_type == 'url_transparent':
++        elif result_type in ('url_transparent', 'url_transparent_id'):
+             # Use the information from the embedding page
+             info = self.extract_info(
+                 ie_result['url'], ie_key=ie_result.get('ie_key'),
+@@ -880,7 +881,11 @@ class YoutubeDL(object):
+ 
+             force_properties = dict(
+                 (k, v) for k, v in ie_result.items() if v is not None)
+-            for f in ('_type', 'url', 'id', 'extractor', 'extractor_key', 'ie_key'):
++            if result_type == 'url_transparent':
++                rmprops = ('_type', 'url', 'id', 'extractor', 'extractor_key', 'ie_key')
++            else:
++                rmprops = ('_type', 'url', 'extractor', 'extractor_key', 'ie_key')
++            for f in rmprops:
+                 if f in force_properties:
+                     del force_properties[f]
+             new_result = info.copy()
+@@ -1871,8 +1876,7 @@ class YoutubeDL(object):
+                         video_ext, audio_ext = video.get('ext'), audio.get('ext')
+                         if video_ext and audio_ext:
+                             COMPATIBLE_EXTS = (
+-                                ('mp3', 'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'ismv', 'isma'),
+-                                ('webm')
++                                ('mp3', 'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'ismv', 'isma')
+                             )
+                             for exts in COMPATIBLE_EXTS:
+                                 if video_ext in exts and audio_ext in exts:
+@@ -2314,8 +2318,11 @@ class YoutubeDL(object):
+         else:
+             opts_cookiefile = expand_path(opts_cookiefile)
+             self.cookiejar = YoutubeDLCookieJar(opts_cookiefile)
+-            if os.access(opts_cookiefile, os.R_OK):
+-                self.cookiejar.load(ignore_discard=True, ignore_expires=True)
++            if os.access(opts_cookiefile, os.R_OK) or os.path.exists(opts_cookiefile):
++                try:
++                    self.cookiejar.load(ignore_discard=True, ignore_expires=True)
++                except:
++                    pass
+ 
+         cookie_processor = YoutubeDLCookieProcessor(self.cookiejar)
+         if opts_proxy is not None:
+diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
+index 859786617..48180452a 100644
+--- a/youtube_dl/extractor/common.py
++++ b/youtube_dl/extractor/common.py
+@@ -963,6 +963,9 @@ class InfoExtractor(object):
+     @staticmethod
+     def playlist_result(entries, playlist_id=None, playlist_title=None, playlist_description=None):
+         """Returns a playlist"""
++        if isinstance(entries, list) and len(entries) == 1:
++            return entries[0]
++
+         video_info = {'_type': 'playlist',
+                       'entries': entries}
+         if playlist_id:
+diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
+index 06de556b7..e906f26ed 100644
+--- a/youtube_dl/extractor/extractors.py
++++ b/youtube_dl/extractor/extractors.py
+@@ -1165,6 +1165,11 @@ from .tnaflix import (
+     MovieFapIE,
+ )
+ from .toggle import ToggleIE
++from .tokyomotion2 import (
++    TokyoMotion2IE,
++    TokyoMotionUser2IE,
++    TokyoMotionUserFavs2IE,
++)
+ from .tonline import TOnlineIE
+ from .toongoggles import ToonGogglesIE
+ from .toutv import TouTvIE
+diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
+new file mode 100644
+index 000000000..37e0ebcf1
+--- /dev/null
++++ b/youtube_dl/extractor/tokyomotion2.py
+@@ -0,0 +1,114 @@
++# coding: utf-8
++from __future__ import unicode_literals
++
++import re
++
++from .common import InfoExtractor
++from ..utils import (
++    sanitized_Request,
++    ExtractorError,
++)
++from ..compat import (
++    compat_urllib_parse,
++)
++
++class TokyoMotion2BaseIE(InfoExtractor):
++    IE_DESC = False  # Do not list
++    def download_page(self, url, video_id):
++        try:
++            # Why can't I use this method!?
++            return self._download_webpage(url, video_id)
++        except: # Above always fail, this will be used
++            request = sanitized_Request(url)
++            request.add_header('Accept-Encoding', '*')
++            full_response = self._request_webpage(request, video_id)
++            return self._webpage_read_content(full_response, url, video_id)
++
++class TokyoMotion2IE(TokyoMotion2BaseIE):
++    IE_NAME = 'tokyomotion'
++    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]+)(?:#.*)?'
++    _TEST = {
++        'url': 'https://www.tokyomotion.net/video/915034/%E9%80%86%E3%81%95',
++        'info_dict': {
++            'id': '915034',
++            'ext': 'mp4',
++            'title': '逆さ',
++        }
++    }
++
++    def _real_extract(self, url):
++        video_id = self._match_id(url)
++        url = self._VALID_URL_RE.match(url).group('url')
++        #self.to_screen(url)
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        webpage = self.download_page(url, video_id)
++
++        title = self._og_search_title(webpage, default=None)
++
++        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
++        variant_name = 'TokyoMotion' if variant == 'tokyo' else 'OsakaMotion'
++        if entries:
++            entry = entries[0]
++            self._sort_formats(entry['formats'])
++        else:
++            raise ExtractorError('Private video.')
++        entry.update({
++            'id': video_id,
++            'title': title,
++            'age_limit': 18,
++            'series': variant_name,
++        })
++        return entry
++
++class TokyoMotionUser2IE(TokyoMotion2BaseIE):
++    IE_NAME = 'tokyomotion:user'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/videos'
++    _TEST = {}
++    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/videos?page=%d'
++
++    def _real_extract(self, url):
++        # no paging
++        # https://www.tokyomotion.net/user/kawhi
++        # https://www.tokyomotion.net/user/kawhi/videos
++        # paging
++        # https://www.tokyomotion.net/user/michel0320/videos?page=2
++        user_id = self._match_id(url)
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        index = 1
++        all_matches = []
++        while True:
++            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
++            #self.to_screen(newurl)
++            self.to_screen('Downloading page %d' % index)
++            webpage = self.download_page(newurl, user_id)
++            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
++                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
++            index = index + 1
++            if ('videos?page=%d"' % index) not in webpage:
++                break
++        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Uploads from %s' % user_id)
++
++class TokyoMotionUserFavs2IE(TokyoMotion2BaseIE):
++    IE_NAME = 'tokyomotion:user:favs'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/favorite/videos'
++    _TEST = {}
++    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/favorite/videos?page=%d'
++
++    def _real_extract(self, url):
++        user_id = self._match_id(url)
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        index = 1
++        all_matches = []
++        while True:
++            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
++            #self.to_screen(newurl)
++            self.to_screen('Downloading page %d' % index)
++            webpage = self.download_page(newurl, user_id)
++            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
++                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
++            index = index + 1
++            if ('videos?page=%d"' % index) not in webpage:
++                break
++        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Favorites from %s' % user_id)
++
++# TODO: searches, and playlists if any
+diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
+index cebb6238c..0ee97f434 100644
+--- a/youtube_dl/extractor/twitter.py
++++ b/youtube_dl/extractor/twitter.py
+@@ -175,11 +175,17 @@ class TwitterCardIE(TwitterBaseIE):
+                 u, video_id, headers={'Referer': 'https://twitter.com/'})
+ 
+             iframe_url = self._html_search_regex(
+-                r'<iframe[^>]+src="((?:https?:)?//(?:www\.youtube\.com/embed/[^"]+|(?:www\.)?vine\.co/v/\w+/card))"',
++                r'<iframe[^>]+src="((?:https?:)?//(?:www\.)?vine\.co/v/\w+/card)"',
+                 webpage, 'video iframe', default=None)
+             if iframe_url:
+                 return self.url_result(iframe_url)
+ 
++            iframe_url = self._html_search_regex(
++                r'<iframe[^>]+src="((?:https?:)?//www\.youtube\.com/embed/[^"]+)"',
++                webpage, 'video iframe', default=None)
++            if iframe_url:
++                raise ExtractorError('Embedded YouTube video is not accepted', expected=True)
++
+             config = self._parse_json(self._html_search_regex(
+                 r'data-(?:player-)?config="([^"]+)"', webpage,
+                 'data player config', default='{}'),
+diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
+index 70416c25e..d5f0d5e8d 100644
+--- a/youtube_dl/postprocessor/ffmpeg.py
++++ b/youtube_dl/postprocessor/ffmpeg.py
+@@ -362,6 +362,8 @@ class FFmpegVideoConvertorPP(FFmpegPostProcessor):
+         options = []
+         if self._preferedformat == 'avi':
+             options.extend(['-c:v', 'libxvid', '-vtag', 'XVID'])
++        if self._preferedformat == 'mkv':
++            options.extend(['-c:v', 'copy', '-c:a', 'copy'])
+         prefix, sep, ext = path.rpartition('.')
+         outpath = prefix + sep + self._preferedformat
+         self._downloader.to_screen('[' + 'ffmpeg' + '] Converting video from %s to %s, Destination: ' % (information['ext'], self._preferedformat) + outpath)
+diff --git a/youtube_dl/update.py b/youtube_dl/update.py
+index 002ea7f33..702b6d7d6 100644
+--- a/youtube_dl/update.py
++++ b/youtube_dl/update.py
+@@ -7,6 +7,7 @@ import hashlib
+ import os
+ import subprocess
+ import sys
++import time
+ from zipimport import zipimporter
+ 
+ from .utils import encode_compat_str
+@@ -31,10 +32,9 @@ def rsa_verify(message, signature, key):
+ def update_self(to_screen, verbose, opener):
+     """Update the program file with the latest version from the repository"""
+ 
+-    UPDATE_URL = 'https://yt-dl.org/update/'
++    UPDATE_URL = 'https://nao20010128nao.github.io/ytdl-patched/'
+     VERSION_URL = UPDATE_URL + 'LATEST_VERSION'
+     JSON_URL = UPDATE_URL + 'versions.json'
+-    UPDATES_RSA_KEY = (0x9d60ee4d8f805312fdb15a62f87b95bd66177b91df176765d13514a0f1754bcd2057295c5b6f1d35daa6742c3ffc9a82d3e118861c207995a8031e151d863c9927e304576bc80692bc8e094896fcf11b66f3e29e04e3a71e9a11558558acea1840aec37fc396fb6b65dc81a1c4144e03bd1c011de62e3f1357b327d08426fe93, 65537)
+ 
+     if not isinstance(globals().get('__loader__'), zipimporter) and not hasattr(sys, 'frozen'):
+         to_screen('It looks like you installed youtube-dl with a package manager, pip, setup.py or a tarball. Please use that to update.')
+@@ -61,19 +61,14 @@ def update_self(to_screen, verbose, opener):
+             to_screen(encode_compat_str(traceback.format_exc()))
+         to_screen('ERROR: can\'t obtain versions info. Please try again later.')
+         return
+-    if 'signature' not in versions_info:
+-        to_screen('ERROR: the versions file is not signed or corrupted. Aborting.')
+-        return
+-    signature = versions_info['signature']
+-    del versions_info['signature']
+-    if not rsa_verify(json.dumps(versions_info, sort_keys=True).encode('utf-8'), signature, UPDATES_RSA_KEY):
+-        to_screen('ERROR: the versions file signature is invalid. Aborting.')
+-        return
++
++    # Don't test signatures for now
+ 
+     version_id = versions_info['latest']
+ 
+     def version_tuple(version_str):
+-        return tuple(map(int, version_str.split('.')))
++        # This assumes timestamp is in UTC
++        return time.strptime(version_str, '%a %b %d %H:%M:%S UTC %Y')
+     if version_tuple(__version__) >= version_tuple(version_id):
+         to_screen('youtube-dl is up to date (%s)' % __version__)
+         return
