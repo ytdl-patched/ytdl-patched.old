@@ -1,7 +1,26 @@
+diff --git a/Makefile b/Makefile
+index 3e17365b8..5b3e54e7f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,7 +9,7 @@ PREFIX ?= /usr/local
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/man
+ SHAREDIR ?= $(PREFIX)/share
+-PYTHON ?= /usr/bin/env python
++PYTHON ?= /usr/bin/env python3
+ 
+ # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
+ SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index 3e832fec2..4a4c19415 100755
+index 3e832fec2..54364f1b3 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # coding: utf-8
+ 
+ from __future__ import absolute_import, unicode_literals
 @@ -561,7 +561,8 @@ class YoutubeDL(object):
      def __exit__(self, *args):
          self.restore_console_title()
@@ -67,6 +86,26 @@ index 3e832fec2..4a4c19415 100755
  
          cookie_processor = YoutubeDLCookieProcessor(self.cookiejar)
          if opts_proxy is not None:
+diff --git a/youtube_dl/__init__.py b/youtube_dl/__init__.py
+index 9a659fc65..6bc41020c 100644
+--- a/youtube_dl/__init__.py
++++ b/youtube_dl/__init__.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # coding: utf-8
+ 
+ from __future__ import unicode_literals
+diff --git a/youtube_dl/__main__.py b/youtube_dl/__main__.py
+index 138f5fbec..6b473177e 100755
+--- a/youtube_dl/__main__.py
++++ b/youtube_dl/__main__.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ from __future__ import unicode_literals
+ 
+ # Execute with
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
 index 859786617..48180452a 100644
 --- a/youtube_dl/extractor/common.py
@@ -99,10 +138,10 @@ index 06de556b7..e906f26ed 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..37e0ebcf1
+index 000000000..7e9df39be
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,106 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -128,6 +167,20 @@ index 000000000..37e0ebcf1
 +            request.add_header('Accept-Encoding', '*')
 +            full_response = self._request_webpage(request, video_id)
 +            return self._webpage_read_content(full_response, url, video_id)
++
++    def _do_paging(self, template, variant, user_id):
++        index = 1
++        all_matches = []
++        while True:
++            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
++            self.to_screen('Downloading page %d' % index)
++            webpage = self.download_page(newurl, user_id)
++            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
++                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
++            index = index + 1
++            if ('videos?page=%d"' % index) not in webpage:
++                break
++        return (self.url_result(url) for url in set(all_matches))
 +
 +class TokyoMotion2IE(TokyoMotion2BaseIE):
 +    IE_NAME = 'tokyomotion'
@@ -179,19 +232,8 @@ index 000000000..37e0ebcf1
 +        # https://www.tokyomotion.net/user/michel0320/videos?page=2
 +        user_id = self._match_id(url)
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        index = 1
-+        all_matches = []
-+        while True:
-+            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
-+            #self.to_screen(newurl)
-+            self.to_screen('Downloading page %d' % index)
-+            webpage = self.download_page(newurl, user_id)
-+            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
-+                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
-+            index = index + 1
-+            if ('videos?page=%d"' % index) not in webpage:
-+                break
-+        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Uploads from %s' % user_id)
++        matches = _do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
++        return self.playlist_result(matches, user_id, 'Uploads from %s' % user_id)
 +
 +class TokyoMotionUserFavs2IE(TokyoMotion2BaseIE):
 +    IE_NAME = 'tokyomotion:user:favs'
@@ -202,19 +244,8 @@ index 000000000..37e0ebcf1
 +    def _real_extract(self, url):
 +        user_id = self._match_id(url)
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        index = 1
-+        all_matches = []
-+        while True:
-+            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
-+            #self.to_screen(newurl)
-+            self.to_screen('Downloading page %d' % index)
-+            webpage = self.download_page(newurl, user_id)
-+            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
-+                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
-+            index = index + 1
-+            if ('videos?page=%d"' % index) not in webpage:
-+                break
-+        return self.playlist_result((self.url_result(url) for url in set(all_matches)), user_id, 'Favorites from %s' % user_id)
++        matches = _do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
++        return self.playlist_result(matches, user_id, 'Favorites from %s' % user_id)
 +
 +# TODO: searches, and playlists if any
 diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
