@@ -138,7 +138,7 @@ index 06de556b7..e906f26ed 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..7e9df39be
+index 000000000..a7a0b0d35
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,106 @@
@@ -232,7 +232,7 @@ index 000000000..7e9df39be
 +        # https://www.tokyomotion.net/user/michel0320/videos?page=2
 +        user_id = self._match_id(url)
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        matches = _do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
++        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
 +        return self.playlist_result(matches, user_id, 'Uploads from %s' % user_id)
 +
 +class TokyoMotionUserFavs2IE(TokyoMotion2BaseIE):
@@ -244,7 +244,7 @@ index 000000000..7e9df39be
 +    def _real_extract(self, url):
 +        user_id = self._match_id(url)
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        matches = _do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
++        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
 +        return self.playlist_result(matches, user_id, 'Favorites from %s' % user_id)
 +
 +# TODO: searches, and playlists if any
