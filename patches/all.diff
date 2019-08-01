@@ -138,10 +138,10 @@ index 06de556b7..e906f26ed 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..a7a0b0d35
+index 000000000..668c3f6e5
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,107 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -152,9 +152,10 @@ index 000000000..a7a0b0d35
 +    sanitized_Request,
 +    ExtractorError,
 +)
-+from ..compat import (
-+    compat_urllib_parse,
-+)
++try:
++    from urllib import quote
++except ImportError:
++    from urllib.parse import quote
 +
 +class TokyoMotion2BaseIE(InfoExtractor):
 +    IE_DESC = False  # Do not list
@@ -175,7 +176,7 @@ index 000000000..a7a0b0d35
 +            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
 +            self.to_screen('Downloading page %d' % index)
 +            webpage = self.download_page(newurl, user_id)
-+            all_matches.extend('https://www.%smotion.net%s' % (variant, compat_urllib_parse.quote(frg.group()))
++            all_matches.extend('https://www.%smotion.net%s' % (variant, quote(frg.group()))
 +                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
 +            index = index + 1
 +            if ('videos?page=%d"' % index) not in webpage:
