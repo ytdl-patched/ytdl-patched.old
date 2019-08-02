@@ -121,10 +121,10 @@ index 859786617..48180452a 100644
                        'entries': entries}
          if playlist_id:
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 06de556b7..e906f26ed 100644
+index 06de556b7..62a954168 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -1165,6 +1165,11 @@ from .tnaflix import (
+@@ -1165,6 +1165,12 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -132,16 +132,17 @@ index 06de556b7..e906f26ed 100644
 +    TokyoMotion2IE,
 +    TokyoMotionUser2IE,
 +    TokyoMotionUserFavs2IE,
++    TokyoMotionSearches2IE,
 +)
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..11af0d9c3
+index 000000000..c705b2dc1
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,113 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -183,6 +184,14 @@ index 000000000..11af0d9c3
 +                break
 +        return (self.url_result(url) for url in set(all_matches))
 +
++class TokyoMotionPlaylistBase2IE(TokyoMotion2BaseIE):
++    IE_DESC = False  # Do not list
++    def _real_extract(self, url):
++        user_id = self._match_id(url)
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
++        return self.playlist_result(matches, user_id, self.TITLE % user_id)
++
 +class TokyoMotion2IE(TokyoMotion2BaseIE):
 +    IE_NAME = 'tokyomotion'
 +    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]+)(?:#.*)?'
@@ -218,36 +227,35 @@ index 000000000..11af0d9c3
 +        })
 +        return entry
 +
-+class TokyoMotionUser2IE(TokyoMotion2BaseIE):
++class TokyoMotionUser2IE(TokyoMotionPlaylistBase2IE):
++    """
++    # no paging
++    # https://www.tokyomotion.net/user/kawhi
++    # https://www.tokyomotion.net/user/kawhi/videos
++    # paging
++    # https://www.tokyomotion.net/user/michel0320/videos?page=2
++    """
 +    IE_NAME = 'tokyomotion:user'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)(?:/videos)?'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/videos?page=%d'
++    TITLE = 'Uploads from %s'
 +
-+    def _real_extract(self, url):
-+        # no paging
-+        # https://www.tokyomotion.net/user/kawhi
-+        # https://www.tokyomotion.net/user/kawhi/videos
-+        # paging
-+        # https://www.tokyomotion.net/user/michel0320/videos?page=2
-+        user_id = self._match_id(url)
-+        variant = self._VALID_URL_RE.match(url).group('variant')
-+        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
-+        return self.playlist_result(matches, user_id, 'Uploads from %s' % user_id)
-+
-+class TokyoMotionUserFavs2IE(TokyoMotion2BaseIE):
++class TokyoMotionUserFavs2IE(TokyoMotionPlaylistBase2IE):
 +    IE_NAME = 'tokyomotion:user:favs'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/favorite/videos'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/favorite/videos?page=%d'
++    TITLE = 'Favorites from %s'
 +
-+    def _real_extract(self, url):
-+        user_id = self._match_id(url)
-+        variant = self._VALID_URL_RE.match(url).group('variant')
-+        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
-+        return self.playlist_result(matches, user_id, 'Favorites from %s' % user_id)
++class TokyoMotionSearches2IE(TokyoMotionPlaylistBase2IE):
++    IE_NAME = 'tokyomotion:searches'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/search\?search_query=(?P<id>[^/&]+)&search_type=videos(?:&page=\d+)?'
++    _TEST = {}
++    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/search?search_query=%s&search_type=videos&page=%d'
++    TITLE = 'Search results by %s'
 +
-+# TODO: searches, and playlists if any
++# TODO: playlists if any
 diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
 index cebb6238c..0ee97f434 100644
 --- a/youtube_dl/extractor/twitter.py
