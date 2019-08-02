@@ -139,7 +139,7 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..4dd576d30
+index 000000000..1b7776cf5
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,113 @@
@@ -180,7 +180,7 @@ index 000000000..4dd576d30
 +            all_matches.extend('https://www.%smotion.net%s' % (variant, quote(frg.group()))
 +                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
 +            index = index + 1
-+            if ('videos?page=%d"' % index) not in webpage:
++            if ('videos?page=%d"' % index) not in webpage and ('&page=%d"' % index) not in webpage:
 +                break
 +        return (self.url_result(url) for url in set(all_matches))
 +
@@ -250,7 +250,7 @@ index 000000000..4dd576d30
 +
 +class TokyoMotionSearches2IE(TokyoMotionPlaylistBase2IE):
 +    IE_NAME = 'tokyomotion:searches'
-+    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/search\?search_query=(?P<id>[^/&]+)&search_type=videos(?:&page=\d+)?'
++    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/search\?search_query=(?P<id>[^/&]+)(?:&search_type=videos)?(?:&page=\d+)?'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/search?search_query=%s&search_type=videos&page=%d'
 +    TITLE = 'Search results for %s'
