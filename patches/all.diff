@@ -139,7 +139,7 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..c705b2dc1
+index 000000000..4dd576d30
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,113 @@
@@ -253,7 +253,7 @@ index 000000000..c705b2dc1
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/search\?search_query=(?P<id>[^/&]+)&search_type=videos(?:&page=\d+)?'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/search?search_query=%s&search_type=videos&page=%d'
-+    TITLE = 'Search results by %s'
++    TITLE = 'Search results for %s'
 +
 +# TODO: playlists if any
 diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
