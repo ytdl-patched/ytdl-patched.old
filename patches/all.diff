@@ -139,10 +139,10 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..1b7776cf5
+index 000000000..cef467a5f
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,106 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -228,13 +228,6 @@ index 000000000..1b7776cf5
 +        return entry
 +
 +class TokyoMotionUser2IE(TokyoMotionPlaylistBase2IE):
-+    """
-+    # no paging
-+    # https://www.tokyomotion.net/user/kawhi
-+    # https://www.tokyomotion.net/user/kawhi/videos
-+    # paging
-+    # https://www.tokyomotion.net/user/michel0320/videos?page=2
-+    """
 +    IE_NAME = 'tokyomotion:user'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)(?:/videos)?'
 +    _TEST = {}
