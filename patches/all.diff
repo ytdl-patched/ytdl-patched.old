@@ -139,7 +139,7 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..cef467a5f
+index 000000000..b0bb7519c
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,106 @@
@@ -218,7 +218,7 @@ index 000000000..cef467a5f
 +            entry = entries[0]
 +            self._sort_formats(entry['formats'])
 +        else:
-+            raise ExtractorError('Private video')
++            raise ExtractorError('Private video', expected=True)
 +        entry.update({
 +            'id': video_id,
 +            'title': title,
