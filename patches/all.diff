@@ -12,7 +12,7 @@ index 3e17365b8..5b3e54e7f 100644
  # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
  SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index 3e832fec2..54364f1b3 100755
+index 6a44bc7ba..b37d01316 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
 @@ -1,4 +1,4 @@
@@ -62,7 +62,7 @@ index 3e832fec2..54364f1b3 100755
                  if f in force_properties:
                      del force_properties[f]
              new_result = info.copy()
-@@ -1871,8 +1876,7 @@ class YoutubeDL(object):
+@@ -1873,8 +1878,7 @@ class YoutubeDL(object):
                          video_ext, audio_ext = video.get('ext'), audio.get('ext')
                          if video_ext and audio_ext:
                              COMPATIBLE_EXTS = (
@@ -72,7 +72,7 @@ index 3e832fec2..54364f1b3 100755
                              )
                              for exts in COMPATIBLE_EXTS:
                                  if video_ext in exts and audio_ext in exts:
-@@ -2314,8 +2318,11 @@ class YoutubeDL(object):
+@@ -2316,8 +2320,11 @@ class YoutubeDL(object):
          else:
              opts_cookiefile = expand_path(opts_cookiefile)
              self.cookiejar = YoutubeDLCookieJar(opts_cookiefile)
