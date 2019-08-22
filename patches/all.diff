@@ -139,7 +139,7 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..b0bb7519c
+index 000000000..2755749e2
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
 @@ -0,0 +1,106 @@
@@ -182,7 +182,7 @@ index 000000000..b0bb7519c
 +            index = index + 1
 +            if ('videos?page=%d"' % index) not in webpage and ('&page=%d"' % index) not in webpage:
 +                break
-+        return (self.url_result(url) for url in set(all_matches))
++        return (self.url_result(url) for url in sorted(set(all_matches)))
 +
 +class TokyoMotionPlaylistBase2IE(TokyoMotion2BaseIE):
 +    IE_DESC = False  # Do not list
