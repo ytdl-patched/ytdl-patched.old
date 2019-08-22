@@ -139,10 +139,10 @@ index 06de556b7..62a954168 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..2755749e2
+index 000000000..c6dac70f2
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,117 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -153,6 +153,10 @@ index 000000000..2755749e2
 +    sanitized_Request,
 +    ExtractorError,
 +)
++from ..compat import (
++    compat_str,
++)
++
 +try:
 +    from urllib import quote
 +except ImportError:
@@ -170,6 +174,13 @@ index 000000000..2755749e2
 +            full_response = self._request_webpage(request, video_id)
 +            return self._webpage_read_content(full_response, url, video_id)
 +
++    def _int_id(self, url):
++        # Allow _VIDEO_URL_RE to be shared between childen
++        if '_VIDEO_URL_RE' not in TokyoMotion2BaseIE.__dict__:
++            TokyoMotion2BaseIE._VIDEO_URL_RE = re.compile(TokyoMotion2IE._VALID_URL)
++        m = TokyoMotion2BaseIE._VIDEO_URL_RE.match(url)
++        return int(compat_str(m.group('id')))
++
 +    def _do_paging(self, template, variant, user_id):
 +        index = 1
 +        all_matches = []
@@ -182,7 +193,7 @@ index 000000000..2755749e2
 +            index = index + 1
 +            if ('videos?page=%d"' % index) not in webpage and ('&page=%d"' % index) not in webpage:
 +                break
-+        return (self.url_result(url) for url in sorted(set(all_matches)))
++        return (self.url_result(url) for url in sorted(set(all_matches), key=self._int_id))
 +
 +class TokyoMotionPlaylistBase2IE(TokyoMotion2BaseIE):
 +    IE_DESC = False  # Do not list
