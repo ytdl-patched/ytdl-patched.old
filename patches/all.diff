@@ -344,3 +344,31 @@ index 002ea7f33..702b6d7d6 100644
      if version_tuple(__version__) >= version_tuple(version_id):
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
+diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
+index 798757241..0dad530b2 100644
+--- a/youtube_dl/utils.py
++++ b/youtube_dl/utils.py
+@@ -83,7 +83,13 @@ compiled_regex_type = type(re.compile(''))
+ 
+ 
+ def random_user_agent():
+-    _USER_AGENT_TPL = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s Safari/537.36'
++    _USER_AGENT_TPL = 'Mozilla/5.0 (Windows NT %s; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s Safari/537.36'
++    _WINDOWS_VERSIONS = (
++        '6.1', # 7
++        '6.2', # 8
++        '6.3', # 8.1
++        '10.0',
++    )
+     _CHROME_VERSIONS = (
+         '74.0.3729.129',
+         '76.0.3780.3',
+@@ -1662,7 +1668,7 @@ def random_user_agent():
+         '70.0.3513.0',
+         '69.0.3497.28',
+     )
+-    return _USER_AGENT_TPL % random.choice(_CHROME_VERSIONS)
++    return _USER_AGENT_TPL % (random.choice(_WINDOWS_VERSIONS), random.choice(_CHROME_VERSIONS))
+ 
+ 
+ std_headers = {
