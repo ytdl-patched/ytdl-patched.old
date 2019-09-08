@@ -121,10 +121,10 @@ index 859786617..48180452a 100644
                        'entries': entries}
          if playlist_id:
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 06de556b7..62a954168 100644
+index 06de556b7..c0585bed6 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -1165,6 +1165,12 @@ from .tnaflix import (
+@@ -1165,6 +1165,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -133,16 +133,17 @@ index 06de556b7..62a954168 100644
 +    TokyoMotionUser2IE,
 +    TokyoMotionUserFavs2IE,
 +    TokyoMotionSearches2IE,
++    TokyoMotionScanner2IE,
 +)
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..c6dac70f2
+index 000000000..85fe70e59
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,117 @@
+@@ -0,0 +1,129 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -165,21 +166,23 @@ index 000000000..c6dac70f2
 +class TokyoMotion2BaseIE(InfoExtractor):
 +    IE_DESC = False  # Do not list
 +    def download_page(self, url, video_id):
-+        try:
-+            # Why can't I use this method!?
-+            return self._download_webpage(url, video_id)
-+        except: # Above always fail, this will be used
-+            request = sanitized_Request(url)
-+            request.add_header('Accept-Encoding', '*')
-+            full_response = self._request_webpage(request, video_id)
-+            return self._webpage_read_content(full_response, url, video_id)
++        # This fails
++        # return self._download_webpage(url, video_id)
++        # Use ones in generic extractor
++        request = sanitized_Request(url)
++        request.add_header('Accept-Encoding', '*')
++        full_response = self._request_webpage(request, video_id)
++        return self._webpage_read_content(full_response, url, video_id)
 +
 +    def _int_id(self, url):
-+        # Allow _VIDEO_URL_RE to be shared between childen
-+        if '_VIDEO_URL_RE' not in TokyoMotion2BaseIE.__dict__:
-+            TokyoMotion2BaseIE._VIDEO_URL_RE = re.compile(TokyoMotion2IE._VALID_URL)
-+        m = TokyoMotion2BaseIE._VIDEO_URL_RE.match(url)
++        if '_VALID_URL_RE' not in TokyoMotion2IE.__dict__:
++            TokyoMotion2IE._VALID_URL_RE = re.compile(TokyoMotion2IE._VALID_URL)
++        m = TokyoMotion2IE._VALID_URL_RE.match(url)
 +        return int(compat_str(m.group('id')))
++
++    def _extract_video_urls(self, variant, webpage):
++        return ('https://www.%smotion.net%s' % (variant, quote(frg.group()))
++            for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
 +
 +    def _do_paging(self, template, variant, user_id):
 +        index = 1
@@ -188,8 +191,7 @@ index 000000000..c6dac70f2
 +            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
 +            self.to_screen('Downloading page %d' % index)
 +            webpage = self.download_page(newurl, user_id)
-+            all_matches.extend('https://www.%smotion.net%s' % (variant, quote(frg.group()))
-+                for frg in re.finditer(r'/video/(?P<id>\d+)/[^#?&"\']+', webpage))
++            all_matches.extend(self._extract_video_urls(variant, webpage))
 +            index = index + 1
 +            if ('videos?page=%d"' % index) not in webpage and ('&page=%d"' % index) not in webpage:
 +                break
@@ -259,7 +261,18 @@ index 000000000..c6dac70f2
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/search?search_query=%s&search_type=videos&page=%d'
 +    TITLE = 'Search results for %s'
 +
-+# TODO: playlists if any
++class TokyoMotionScanner2IE(TokyoMotion2BaseIE):
++    IE_DESC = False  # Do not list
++    IE_NAME = 'tokyomotion:scanner'
++    _VALID_URL = r'tmscan:https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/(?P<id>.*)'
++    _TEST = {}
++    def _real_extract(self, url):
++        user_id = self._match_id(url) or ''
++        variant = self._VALID_URL_RE.match(url).group('variant')
++        webpage = self.download_page(url[7:], user_id)
++        matches = self._extract_video_urls(variant, webpage)
++        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
++        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
 diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
 index cebb6238c..0ee97f434 100644
 --- a/youtube_dl/extractor/twitter.py
