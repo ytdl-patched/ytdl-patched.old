@@ -121,7 +121,7 @@ index 859786617..48180452a 100644
                        'entries': entries}
          if playlist_id:
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 06de556b7..c0585bed6 100644
+index 4adcae1e5..6b939dcc1 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -1165,6 +1165,13 @@ from .tnaflix import (
