@@ -34,3 +34,15 @@ jobs:
         git add .
         git commit -m "$(date)"
         git push
+    - name: Upload to my homebrew repository
+      run: |
+        git clone https://nao20010128nao:${{ secrets.GITHUB_PAT }}@github.com/nao20010128nao/homebrew-my.git
+        cd homebrew-my
+        export FILEHASH_TAR="$(sha256sum ../artifacts/youtube-dl.tar.gz | awk '{print $1}')"
+        export VERSION="$(date --date="$(cat ../artifacts/LATEST_VERSION)" +'%s')"
+        echo $FILEHASH_TAR $VERSION
+        sed -E -i "s/sha256 \"[0-9a-f]*\"/sha256 \"$FILEHASH_TAR\"/g" Formula/ytdl-patched.rb
+        sed -E -i "s/version \".+\"/version \"$VERSION\"/g" Formula/ytdl-patched.rb
+        git add .
+        git commit -m "ytdl-patched: $VERSION"
+        git push
