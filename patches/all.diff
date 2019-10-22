@@ -12,7 +12,7 @@ index 3e17365b8..5b3e54e7f 100644
  # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
  SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index c3d1407f9..f7f45ffce 100755
+index f5cb46308..7401e5415 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
 @@ -1,4 +1,4 @@
@@ -121,7 +121,7 @@ index 50d48c40d..a823391b3 100644
                        'entries': entries}
          if playlist_id:
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 7a1e0dad6..24abcb49f 100644
+index 1db21529f..527489893 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -1167,6 +1167,13 @@ from .tnaflix import (
@@ -138,6 +138,57 @@ index 7a1e0dad6..24abcb49f 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
+diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
+index ba0ad7da2..b0854e01d 100644
+--- a/youtube_dl/extractor/pornhub.py
++++ b/youtube_dl/extractor/pornhub.py
+@@ -173,7 +173,7 @@ class PornHubIE(PornHubBaseIE):
+                 'https://www.%s/view_video.php?viewkey=%s' % (host, video_id),
+                 video_id, 'Downloading %s webpage' % platform)
+ 
+-        webpage = dl_webpage('pc')
++        webpage = dl_webpage(None)
+ 
+         error_msg = self._html_search_regex(
+             r'(?s)<div[^>]+class=(["\'])(?:(?!\1).)*\b(?:removed|userMessageSection)\b(?:(?!\1).)*\1[^>]*>(?P<error>.+?)</div>',
+@@ -202,7 +202,9 @@ class PornHubIE(PornHubBaseIE):
+             self._search_regex(
+                 r'var\s+flashvars_\d+\s*=\s*({.+?});', webpage, 'flashvars', default='{}'),
+             video_id)
++        #self.to_screen(flashvars)
+         if flashvars:
++            #self.to_screen('flashvars ok')
+             subtitle_url = url_or_none(flashvars.get('closedCaptionsFile'))
+             if subtitle_url:
+                 subtitles.setdefault('en', []).append({
+@@ -213,14 +215,18 @@ class PornHubIE(PornHubBaseIE):
+             duration = int_or_none(flashvars.get('video_duration'))
+             media_definitions = flashvars.get('mediaDefinitions')
+             if isinstance(media_definitions, list):
++                #self.to_screen('media definitions is a list')
+                 for definition in media_definitions:
+                     if not isinstance(definition, dict):
+                         continue
++                    #self.to_screen('definition is a dict')
+                     video_url = definition.get('videoUrl')
+                     if not video_url or not isinstance(video_url, compat_str):
++                        #self.to_screen('url is not string')
+                         continue
+                     if video_url in video_urls_set:
+                         continue
++                    #self.to_screen('adding %s' % video_url)
+                     video_urls_set.add(video_url)
+                     video_urls.append(
+                         (video_url, int_or_none(definition.get('quality'))))
+@@ -294,6 +300,8 @@ class PornHubIE(PornHubBaseIE):
+             })
+         self._sort_formats(formats)
+ 
++        webpage = dl_webpage('pc')
++
+         video_uploader = self._html_search_regex(
+             r'(?s)From:&nbsp;.+?<(?:a\b[^>]+\bhref=["\']/(?:(?:user|channel)s|model|pornstar)/|span\b[^>]+\bclass=["\']username)[^>]+>(.+?)<',
+             webpage, 'uploader', fatal=False)
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
 index 000000000..85fe70e59
@@ -297,7 +348,7 @@ index cebb6238c..0ee97f434 100644
                  r'data-(?:player-)?config="([^"]+)"', webpage,
                  'data player config', default='{}'),
 diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
-index 70416c25e..d5f0d5e8d 100644
+index fd3f921a8..016b743d6 100644
 --- a/youtube_dl/postprocessor/ffmpeg.py
 +++ b/youtube_dl/postprocessor/ffmpeg.py
 @@ -362,6 +362,8 @@ class FFmpegVideoConvertorPP(FFmpegPostProcessor):
@@ -358,7 +409,7 @@ index 002ea7f33..702b6d7d6 100644
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
 diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
-index 798757241..0dad530b2 100644
+index 53117ea90..3d4451a49 100644
 --- a/youtube_dl/utils.py
 +++ b/youtube_dl/utils.py
 @@ -83,7 +83,13 @@ compiled_regex_type = type(re.compile(''))
