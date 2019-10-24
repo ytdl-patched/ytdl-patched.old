@@ -139,56 +139,77 @@ index 1db21529f..527489893 100644
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
-index ba0ad7da2..b0854e01d 100644
+index ba0ad7da2..4e286d7a3 100644
 --- a/youtube_dl/extractor/pornhub.py
 +++ b/youtube_dl/extractor/pornhub.py
-@@ -173,7 +173,7 @@ class PornHubIE(PornHubBaseIE):
-                 'https://www.%s/view_video.php?viewkey=%s' % (host, video_id),
-                 video_id, 'Downloading %s webpage' % platform)
+@@ -5,6 +5,7 @@ import functools
+ import itertools
+ import operator
+ import re
++import subprocess
  
--        webpage = dl_webpage('pc')
-+        webpage = dl_webpage(None)
+ from .common import InfoExtractor
+ from ..compat import (
+@@ -21,8 +22,26 @@ from ..utils import (
+     remove_quotes,
+     str_to_int,
+     url_or_none,
++    encodeArgument,
++    check_executable,
+ )
  
-         error_msg = self._html_search_regex(
-             r'(?s)<div[^>]+class=(["\'])(?:(?!\1).)*\b(?:removed|userMessageSection)\b(?:(?!\1).)*\1[^>]*>(?P<error>.+?)</div>',
-@@ -202,7 +202,9 @@ class PornHubIE(PornHubBaseIE):
++class NodeJSWrapper(object):
++    def __init__(self):
++        self.exe = check_executable('node', ['-v'])
++        if not self.exe:
++            raise ExtractorError('NodeJS executable not found in PATH, '
++                                 'download it from http://nodejs.org',
++                                 expected=True)
++    def eval(self, code):
++        p = subprocess.Popen([
++            self.exe, '-e', code
++        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        out, err = p.communicate()
++        if p.returncode != 0:
++            raise ExtractorError(
++                'Executing JS failed\n:' + encodeArgument(err))
++        return out
+ 
+ class PornHubBaseIE(InfoExtractor):
+     def _download_webpage_handle(self, *args, **kwargs):
+@@ -202,7 +221,8 @@ class PornHubIE(PornHubBaseIE):
              self._search_regex(
                  r'var\s+flashvars_\d+\s*=\s*({.+?});', webpage, 'flashvars', default='{}'),
              video_id)
-+        #self.to_screen(flashvars)
-         if flashvars:
-+            #self.to_screen('flashvars ok')
+-        if flashvars:
++        thumbnail, duration = [None] * 2
++        def processFlashvars():
              subtitle_url = url_or_none(flashvars.get('closedCaptionsFile'))
              if subtitle_url:
                  subtitles.setdefault('en', []).append({
-@@ -213,14 +215,18 @@ class PornHubIE(PornHubBaseIE):
-             duration = int_or_none(flashvars.get('video_duration'))
-             media_definitions = flashvars.get('mediaDefinitions')
-             if isinstance(media_definitions, list):
-+                #self.to_screen('media definitions is a list')
-                 for definition in media_definitions:
-                     if not isinstance(definition, dict):
-                         continue
-+                    #self.to_screen('definition is a dict')
-                     video_url = definition.get('videoUrl')
-                     if not video_url or not isinstance(video_url, compat_str):
-+                        #self.to_screen('url is not string')
-                         continue
-                     if video_url in video_urls_set:
-                         continue
-+                    #self.to_screen('adding %s' % video_url)
+@@ -224,8 +244,20 @@ class PornHubIE(PornHubBaseIE):
                      video_urls_set.add(video_url)
                      video_urls.append(
                          (video_url, int_or_none(definition.get('quality'))))
-@@ -294,6 +300,8 @@ class PornHubIE(PornHubBaseIE):
-             })
-         self._sort_formats(formats)
- 
-+        webpage = dl_webpage('pc')
+-        else:
+-            thumbnail, duration = [None] * 2
 +
-         video_uploader = self._html_search_regex(
-             r'(?s)From:&nbsp;.+?<(?:a\b[^>]+\bhref=["\']/(?:(?:user|channel)s|model|pornstar)/|span\b[^>]+\bclass=["\']username)[^>]+>(.+?)<',
-             webpage, 'uploader', fatal=False)
++        processFlashvars()
++        if not video_urls:
++            # find whole script tag including flashvars
++            flashvarsTag = self._search_regex(
++                    r'<script[^>]*>([^>]+var\s+flashvars_\d+\s*=\s*{.+?};[^<]+)</script>(?s)', webpage, 'whole script including flashvars', default='void 0')
++            flashvarsName = self._search_regex(
++                    r'var\s+(flashvars_\d+)\s*=\s*{.+?};', webpage, 'real name of flashvars', default='{}')
++            # let NodeJS evaluate this script
++            polyfill = '''var loadScriptUniqueId=[];var loadScriptVar=[];var playerObjList={};'''
++            code = polyfill + flashvarsTag + ';console.log(JSON.stringify(' + flashvarsName + '));'
++            nodejs = NodeJSWrapper()
++            flashvars = self._parse_json(nodejs.eval(code), video_id)
++            processFlashvars()
+ 
+         if not video_urls:
+             tv_webpage = dl_webpage('tv')
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
 index 000000000..85fe70e59
