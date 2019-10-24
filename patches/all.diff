@@ -139,7 +139,7 @@ index 1db21529f..527489893 100644
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
-index ba0ad7da2..4e286d7a3 100644
+index ba0ad7da2..10c0028f8 100644
 --- a/youtube_dl/extractor/pornhub.py
 +++ b/youtube_dl/extractor/pornhub.py
 @@ -5,6 +5,7 @@ import functools
@@ -196,7 +196,7 @@ index ba0ad7da2..4e286d7a3 100644
 +
 +        processFlashvars()
 +        if not video_urls:
-+            # find whole script tag including flashvars
++            # find whole script including flashvars
 +            flashvarsTag = self._search_regex(
 +                    r'<script[^>]*>([^>]+var\s+flashvars_\d+\s*=\s*{.+?};[^<]+)</script>(?s)', webpage, 'whole script including flashvars', default='void 0')
 +            flashvarsName = self._search_regex(
