@@ -345,6 +345,16 @@ index 000000000..85fe70e59
 +        matches = self._extract_video_urls(variant, webpage)
 +        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
 +        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
+diff --git a/youtube_dl/extractor/twitcasting.py b/youtube_dl/extractor/twitcasting.py
+index 2dbe89f5b..23f062673 100644
+--- a/youtube_dl/extractor/twitcasting.py
++++ b/youtube_dl/extractor/twitcasting.py
+@@ -78,4 +78,5 @@ class TwitCastingIE(InfoExtractor):
+             'thumbnail': thumbnail,
+             'uploader_id': uploader_id,
+             'formats': formats,
++            'is_live': True,
+         }
 diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
 index cebb6238c..0ee97f434 100644
 --- a/youtube_dl/extractor/twitter.py
