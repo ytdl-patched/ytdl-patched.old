@@ -139,7 +139,7 @@ index 1db21529f..527489893 100644
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
-index ba0ad7da2..10c0028f8 100644
+index ba0ad7da2..a6d642aa2 100644
 --- a/youtube_dl/extractor/pornhub.py
 +++ b/youtube_dl/extractor/pornhub.py
 @@ -5,6 +5,7 @@ import functools
@@ -150,7 +150,7 @@ index ba0ad7da2..10c0028f8 100644
  
  from .common import InfoExtractor
  from ..compat import (
-@@ -21,8 +22,26 @@ from ..utils import (
+@@ -21,8 +22,30 @@ from ..utils import (
      remove_quotes,
      str_to_int,
      url_or_none,
@@ -160,12 +160,13 @@ index ba0ad7da2..10c0028f8 100644
  
 +class NodeJSWrapper(object):
 +    def __init__(self):
-+        self.exe = check_executable('node', ['-v'])
++        self.exe = check_executable('node', ['-v']) or check_executable('nodejs', ['-v'])
++
++    def eval(self, code):
 +        if not self.exe:
 +            raise ExtractorError('NodeJS executable not found in PATH, '
 +                                 'download it from http://nodejs.org',
 +                                 expected=True)
-+    def eval(self, code):
 +        p = subprocess.Popen([
 +            self.exe, '-e', code
 +        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -174,10 +175,13 @@ index ba0ad7da2..10c0028f8 100644
 +            raise ExtractorError(
 +                'Executing JS failed\n:' + encodeArgument(err))
 +        return out
++
++    def available(self):
++        return not not self.exe
  
  class PornHubBaseIE(InfoExtractor):
      def _download_webpage_handle(self, *args, **kwargs):
-@@ -202,7 +221,8 @@ class PornHubIE(PornHubBaseIE):
+@@ -202,7 +225,8 @@ class PornHubIE(PornHubBaseIE):
              self._search_regex(
                  r'var\s+flashvars_\d+\s*=\s*({.+?});', webpage, 'flashvars', default='{}'),
              video_id)
@@ -187,7 +191,7 @@ index ba0ad7da2..10c0028f8 100644
              subtitle_url = url_or_none(flashvars.get('closedCaptionsFile'))
              if subtitle_url:
                  subtitles.setdefault('en', []).append({
-@@ -224,8 +244,20 @@ class PornHubIE(PornHubBaseIE):
+@@ -224,8 +248,28 @@ class PornHubIE(PornHubBaseIE):
                      video_urls_set.add(video_url)
                      video_urls.append(
                          (video_url, int_or_none(definition.get('quality'))))
@@ -195,18 +199,26 @@ index ba0ad7da2..10c0028f8 100644
 -            thumbnail, duration = [None] * 2
 +
 +        processFlashvars()
++
 +        if not video_urls:
-+            # find whole script including flashvars
-+            flashvarsTag = self._search_regex(
-+                    r'<script[^>]*>([^>]+var\s+flashvars_\d+\s*=\s*{.+?};[^<]+)</script>(?s)', webpage, 'whole script including flashvars', default='void 0')
-+            flashvarsName = self._search_regex(
-+                    r'var\s+(flashvars_\d+)\s*=\s*{.+?};', webpage, 'real name of flashvars', default='{}')
-+            # let NodeJS evaluate this script
-+            polyfill = '''var loadScriptUniqueId=[];var loadScriptVar=[];var playerObjList={};'''
-+            code = polyfill + flashvarsTag + ';console.log(JSON.stringify(' + flashvarsName + '));'
 +            nodejs = NodeJSWrapper()
-+            flashvars = self._parse_json(nodejs.eval(code), video_id)
-+            processFlashvars()
++            if nodejs.available():
++                self.to_screen('Trying to invoke Javascript inside the webpage')
++                # find whole script including flashvars
++                flashvarsTag = self._search_regex(
++                        r'<script[^>]*>([^>]+var\s+flashvars_\d+\s*=\s*{.+?};[^<]+)</script>(?s)',
++                        webpage, 'whole script including flashvars', default='void 0')
++                flashvarsName = self._search_regex(
++                        r'var\s+(flashvars_\d+)\s*=\s*{.+?};', webpage, 'real name of flashvars', default='{}')
++                # let NodeJS evaluate this script
++                polyfill = 'var loadScriptUniqueId=[];var loadScriptVar=[];var playerObjList={};'
++                code = polyfill + flashvarsTag + ';console.log(JSON.stringify(' + flashvarsName + '));'
++                flashvars = self._parse_json(nodejs.eval(code), video_id)
++                processFlashvars()
++            else:
++                self.report_warning('PornHub changed its website to require Javascript evaluation. '
++                                    'To do this, NodeJS is requied. '
++                                    'download it from http://nodejs.org')
  
          if not video_urls:
              tv_webpage = dl_webpage('tv')
