@@ -244,10 +244,10 @@ index ba0ad7da2..a6d642aa2 100644
              tv_webpage = dl_webpage('tv')
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..e1778ba8b
+index 000000000..643c67b2f
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,128 @@
+@@ -0,0 +1,127 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -330,11 +330,10 @@ index 000000000..e1778ba8b
 +
 +        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
 +        variant_name = 'TokyoMotion' if variant == 'tokyo' else 'OsakaMotion'
-+        if entries:
-+            entry = entries[0]
-+            self._sort_formats(entry['formats'])
-+        else:
++        if not entries:
 +            raise ExtractorError('Private video', expected=True)
++        entry = entries[0]
++        self._sort_formats(entry['formats'])
 +        entry.update({
 +            'id': video_id,
 +            'title': title,
