@@ -244,10 +244,10 @@ index ba0ad7da2..a6d642aa2 100644
              tv_webpage = dl_webpage('tv')
 diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
 new file mode 100644
-index 000000000..85fe70e59
+index 000000000..e1778ba8b
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion2.py
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,128 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -269,13 +269,13 @@ index 000000000..85fe70e59
 +
 +class TokyoMotion2BaseIE(InfoExtractor):
 +    IE_DESC = False  # Do not list
-+    def download_page(self, url, video_id):
++    def _download_page(self, url, video_id, note=None):
 +        # This fails
 +        # return self._download_webpage(url, video_id)
 +        # Use ones in generic extractor
 +        request = sanitized_Request(url)
 +        request.add_header('Accept-Encoding', '*')
-+        full_response = self._request_webpage(request, video_id)
++        full_response = self._request_webpage(request, video_id, note=note)
 +        return self._webpage_read_content(full_response, url, video_id)
 +
 +    def _int_id(self, url):
@@ -293,8 +293,7 @@ index 000000000..85fe70e59
 +        all_matches = []
 +        while True:
 +            newurl = self.USER_VIDEOS_FULL_URL % (variant, user_id, index)
-+            self.to_screen('Downloading page %d' % index)
-+            webpage = self.download_page(newurl, user_id)
++            webpage = self._download_page(newurl, user_id, note='Downloading page %d' % index)
 +            all_matches.extend(self._extract_video_urls(variant, webpage))
 +            index = index + 1
 +            if ('videos?page=%d"' % index) not in webpage and ('&page=%d"' % index) not in webpage:
@@ -325,7 +324,7 @@ index 000000000..85fe70e59
 +        video_id = self._match_id(url)
 +        url = self._VALID_URL_RE.match(url).group('url')
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        webpage = self.download_page(url, video_id)
++        webpage = self._download_page(url, video_id)
 +
 +        title = self._og_search_title(webpage, default=None)
 +
@@ -373,7 +372,7 @@ index 000000000..85fe70e59
 +    def _real_extract(self, url):
 +        user_id = self._match_id(url) or ''
 +        variant = self._VALID_URL_RE.match(url).group('variant')
-+        webpage = self.download_page(url[7:], user_id)
++        webpage = self._download_page(url[7:], user_id)
 +        matches = self._extract_video_urls(variant, webpage)
 +        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
 +        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
