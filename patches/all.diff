@@ -107,7 +107,7 @@ index 138f5fbec..6b473177e 100755
  
  # Execute with
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
-index 50d48c40d..c52ba88e1 100644
+index 4c2f9303e..0252bc2c4 100644
 --- a/youtube_dl/extractor/common.py
 +++ b/youtube_dl/extractor/common.py
 @@ -963,6 +963,9 @@ class InfoExtractor(object):
@@ -141,10 +141,10 @@ index 50d48c40d..c52ba88e1 100644
              )
          formats.sort(key=_formats_key)
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 1db21529f..527489893 100644
+index d96f0d284..673ede0ff 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -1167,6 +1167,13 @@ from .tnaflix import (
+@@ -1150,6 +1150,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -385,29 +385,6 @@ index 2dbe89f5b..23f062673 100644
              'formats': formats,
 +            'is_live': True,
          }
-diff --git a/youtube_dl/extractor/twitter.py b/youtube_dl/extractor/twitter.py
-index cebb6238c..0ee97f434 100644
---- a/youtube_dl/extractor/twitter.py
-+++ b/youtube_dl/extractor/twitter.py
-@@ -175,11 +175,17 @@ class TwitterCardIE(TwitterBaseIE):
-                 u, video_id, headers={'Referer': 'https://twitter.com/'})
- 
-             iframe_url = self._html_search_regex(
--                r'<iframe[^>]+src="((?:https?:)?//(?:www\.youtube\.com/embed/[^"]+|(?:www\.)?vine\.co/v/\w+/card))"',
-+                r'<iframe[^>]+src="((?:https?:)?//(?:www\.)?vine\.co/v/\w+/card)"',
-                 webpage, 'video iframe', default=None)
-             if iframe_url:
-                 return self.url_result(iframe_url)
- 
-+            iframe_url = self._html_search_regex(
-+                r'<iframe[^>]+src="((?:https?:)?//www\.youtube\.com/embed/[^"]+)"',
-+                webpage, 'video iframe', default=None)
-+            if iframe_url:
-+                raise ExtractorError('Embedded YouTube video is not accepted', expected=True)
-+
-             config = self._parse_json(self._html_search_regex(
-                 r'data-(?:player-)?config="([^"]+)"', webpage,
-                 'data player config', default='{}'),
 diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
 index fd3f921a8..016b743d6 100644
 --- a/youtube_dl/postprocessor/ffmpeg.py
@@ -470,7 +447,7 @@ index 002ea7f33..702b6d7d6 100644
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
 diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
-index 53117ea90..3d4451a49 100644
+index aed988b88..a739155e8 100644
 --- a/youtube_dl/utils.py
 +++ b/youtube_dl/utils.py
 @@ -83,7 +83,13 @@ compiled_regex_type = type(re.compile(''))
