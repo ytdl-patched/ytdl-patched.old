@@ -376,7 +376,7 @@ index 000000000..643c67b2f
 +        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
 +        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
 diff --git a/youtube_dl/extractor/twitcasting.py b/youtube_dl/extractor/twitcasting.py
-index 2dbe89f5b..da21bc3c5 100644
+index 2dbe89f5b..f0ed579e3 100644
 --- a/youtube_dl/extractor/twitcasting.py
 +++ b/youtube_dl/extractor/twitcasting.py
 @@ -2,13 +2,17 @@
@@ -422,7 +422,7 @@ index 2dbe89f5b..da21bc3c5 100644
 +                        'User-Agent': ua[1]
 +                    }
 +                    yield self._download_webpage(
-+                        url, video_id, data=request_data, headers=headers,
++                        actual_url, video_id, data=request_data, headers=headers,
 +                        note='Downloading page: %s %s' % (lang[0], ua[0]))
  
 -        m3u8_url = self._search_regex(
