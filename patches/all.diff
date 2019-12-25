@@ -141,10 +141,18 @@ index 4c2f9303e..b749fe18c 100644
              )
          formats.sort(key=_formats_key)
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index d96f0d284..673ede0ff 100644
+index d96f0d284..f7ab80fba 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -1150,6 +1150,13 @@ from .tnaflix import (
+@@ -331,6 +331,7 @@ from .expotv import ExpoTVIE
+ from .expressen import ExpressenIE
+ from .extremetube import ExtremeTubeIE
+ from .eyedotv import EyedoTVIE
++from .eyny import EynyIE
+ from .facebook import (
+     FacebookIE,
+     FacebookPluginsVideoIE,
+@@ -1150,6 +1151,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -158,6 +166,57 @@ index d96f0d284..673ede0ff 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
+diff --git a/youtube_dl/extractor/eyny.py b/youtube_dl/extractor/eyny.py
+new file mode 100644
+index 000000000..8084c9f7e
+--- /dev/null
++++ b/youtube_dl/extractor/eyny.py
+@@ -0,0 +1,44 @@
++# coding: utf-8
++from __future__ import unicode_literals
++
++import re
++
++from .common import InfoExtractor
++from ..utils import (
++    sanitized_Request,
++    ExtractorError,
++)
++from ..compat import (
++    compat_str,
++)
++
++try:
++    from urllib import quote
++except ImportError:
++    from urllib.parse import quote
++
++class EynyBaseIE(InfoExtractor):
++    IE_DESC = False  # Do not list
++
++class EynyIE(EynyBaseIE):
++    IE_NAME = 'eyny'
++    _VALID_URL = r'https?:\/\/(?:www\.)?eyny\.com\/\d+\/watch\?v=(?P<id>[^#?&]+)(?:&[^&]+)*'
++    _TEST = {}
++
++    def _real_extract(self, url):
++        video_id = self._match_id(url)
++        webpage = self._download_webpage(url, video_id)
++
++        title = self._og_search_title(webpage, default=None)
++
++        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
++        if not entries:
++            raise ExtractorError('Private video', expected=True)
++        entry = entries[0]
++        self._sort_formats(entry['formats'])
++        entry.update({
++            'id': video_id,
++            'title': title,
++            'age_limit': 18,
++        })
++        return entry
+\ No newline at end of file
 diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
 index ba0ad7da2..f227e6c77 100644
 --- a/youtube_dl/extractor/pornhub.py
