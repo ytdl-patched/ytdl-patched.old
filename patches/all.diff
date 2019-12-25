@@ -168,10 +168,10 @@ index d96f0d284..f7ab80fba 100644
  from .toutv import TouTvIE
 diff --git a/youtube_dl/extractor/eyny.py b/youtube_dl/extractor/eyny.py
 new file mode 100644
-index 000000000..8084c9f7e
+index 000000000..2be9f39f3
 --- /dev/null
 +++ b/youtube_dl/extractor/eyny.py
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,45 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -198,12 +198,13 @@ index 000000000..8084c9f7e
 +    IE_NAME = 'eyny'
 +    _VALID_URL = r'https?:\/\/(?:www\.)?eyny\.com\/\d+\/watch\?v=(?P<id>[^#?&]+)(?:&[^&]+)*'
 +    _TEST = {}
++    _TITLE_REGEX = re.compile(r'(?ms)<title>(.+) -  Free Videos \& Sex Movies - XXX Tube - EYNY<\/title>')
 +
 +    def _real_extract(self, url):
 +        video_id = self._match_id(url)
 +        webpage = self._download_webpage(url, video_id)
 +
-+        title = self._og_search_title(webpage, default=None)
++        title = self._TITLE_REGEX.search(webpage).group(1)
 +
 +        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
 +        if not entries:
@@ -216,7 +217,6 @@ index 000000000..8084c9f7e
 +            'age_limit': 18,
 +        })
 +        return entry
-\ No newline at end of file
 diff --git a/youtube_dl/extractor/pornhub.py b/youtube_dl/extractor/pornhub.py
 index ba0ad7da2..f227e6c77 100644
 --- a/youtube_dl/extractor/pornhub.py
