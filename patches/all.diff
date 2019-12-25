@@ -107,7 +107,7 @@ index 138f5fbec..6b473177e 100755
  
  # Execute with
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
-index 4c2f9303e..0252bc2c4 100644
+index 4c2f9303e..a55b557a6 100644
 --- a/youtube_dl/extractor/common.py
 +++ b/youtube_dl/extractor/common.py
 @@ -963,6 +963,9 @@ class InfoExtractor(object):
@@ -124,7 +124,7 @@ index 4c2f9303e..0252bc2c4 100644
                      ext_preference = -1
                  audio_ext_preference = 0
  
-+            if f.get('format_id').upper() == 'HD':
++            if f.get('format_id', 'none').upper() == 'HD':
 +                id_preference = 1
 +            else:
 +                id_preference = 0
