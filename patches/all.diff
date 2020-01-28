@@ -107,7 +107,7 @@ index 138f5fbec..6b473177e 100755
  
  # Execute with
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
-index eaae5e484..af421f044 100644
+index eaae5e484..a349da48a 100644
 --- a/youtube_dl/extractor/common.py
 +++ b/youtube_dl/extractor/common.py
 @@ -963,6 +963,9 @@ class InfoExtractor(object):
@@ -120,11 +120,17 @@ index eaae5e484..af421f044 100644
          video_info = {'_type': 'playlist',
                        'entries': entries}
          if playlist_id:
-@@ -1378,6 +1381,11 @@ class InfoExtractor(object):
+@@ -1378,6 +1381,17 @@ class InfoExtractor(object):
                      ext_preference = -1
                  audio_ext_preference = 0
  
-+            if (f.get('format_id') or 'none').upper() == 'HD':
++            fmt_id = f.get('format_id') or 'none'
++            if fmt_id.startswith('hls-'):
++                hls_preference = int(fmt_id.split('-')[1])
++            else:
++                hls_preference = -100
++
++            if fmt_id.upper() == 'HD':
 +                id_preference = 1
 +            else:
 +                id_preference = 0
@@ -132,14 +138,17 @@ index eaae5e484..af421f044 100644
              return (
                  preference,
                  f.get('language_preference') if f.get('language_preference') is not None else -1,
-@@ -1394,6 +1402,7 @@ class InfoExtractor(object):
+@@ -1394,7 +1408,9 @@ class InfoExtractor(object):
                  f.get('fps') if f.get('fps') is not None else -1,
                  f.get('filesize_approx') if f.get('filesize_approx') is not None else -1,
                  f.get('source_preference') if f.get('source_preference') is not None else -1,
+-                f.get('format_id') if f.get('format_id') is not None else '',
++                hls_preference,
 +                id_preference,
-                 f.get('format_id') if f.get('format_id') is not None else '',
++                fmt_id,
              )
          formats.sort(key=_formats_key)
+ 
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
 index 7b05f5410..6b7d53235 100644
 --- a/youtube_dl/extractor/extractors.py
@@ -359,7 +368,7 @@ index 000000000..643c67b2f
 +        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
 +        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
 diff --git a/youtube_dl/extractor/twitcasting.py b/youtube_dl/extractor/twitcasting.py
-index 2dbe89f5b..abbe11ee3 100644
+index 2dbe89f5b..de39207f1 100644
 --- a/youtube_dl/extractor/twitcasting.py
 +++ b/youtube_dl/extractor/twitcasting.py
 @@ -2,13 +2,17 @@
@@ -382,7 +391,7 @@ index 2dbe89f5b..abbe11ee3 100644
      _TESTS = [{
          'url': 'https://twitcasting.tv/ivetesangalo/movie/2357609',
          'md5': '745243cad58c4681dc752490f7540d7f',
-@@ -50,27 +54,59 @@ class TwitCastingIE(InfoExtractor):
+@@ -50,26 +54,60 @@ class TwitCastingIE(InfoExtractor):
              request_data = urlencode_postdata({
                  'password': video_password,
              })
@@ -434,16 +443,16 @@ index 2dbe89f5b..abbe11ee3 100644
 +
 +            if m3u8_url and m3u8_url[0] == '/':
 +                m3u8_url = 'https://twitcasting.tv%s' % m3u8_url
- 
--        thumbnail = self._og_search_thumbnail(webpage)
--        description = self._og_search_description(
--            webpage, default=None) or self._html_search_meta(
--            'twitter:description', webpage)
++
 +            thumbnail = thumbnail or self._og_search_thumbnail(webpage)
 +            description = description or self._og_search_description(
 +                webpage, default=None) or self._html_search_meta(
 +                'twitter:description', webpage)
  
+-        thumbnail = self._og_search_thumbnail(webpage)
+-        description = self._og_search_description(
+-            webpage, default=None) or self._html_search_meta(
+-            'twitter:description', webpage)
 +            if title and m3u8_url and thumbnail and description:
 +                break
 +
@@ -455,10 +464,11 @@ index 2dbe89f5b..abbe11ee3 100644
 +        formats = self._extract_m3u8_formats(
 +             m3u8_url, video_id, ext='mp4', entry_protocol='m3u8_native',
 +             m3u8_id='hls')
++        self._sort_formats(formats)
+ 
          return {
              'id': video_id,
-             'title': title,
-@@ -78,4 +114,5 @@ class TwitCastingIE(InfoExtractor):
+@@ -78,4 +116,5 @@ class TwitCastingIE(InfoExtractor):
              'thumbnail': thumbnail,
              'uploader_id': uploader_id,
              'formats': formats,
