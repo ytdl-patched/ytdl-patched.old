@@ -150,7 +150,7 @@ index eaae5e484..a349da48a 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 7b05f5410..6b7d53235 100644
+index a202a0449..bb805ab3a 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -331,6 +331,7 @@ from .expotv import ExpoTVIE
