@@ -558,7 +558,7 @@ index fd3f921a8..016b743d6 100644
          outpath = prefix + sep + self._preferedformat
          self._downloader.to_screen('[' + 'ffmpeg' + '] Converting video from %s to %s, Destination: ' % (information['ext'], self._preferedformat) + outpath)
 diff --git a/youtube_dl/update.py b/youtube_dl/update.py
-index 002ea7f33..702b6d7d6 100644
+index 84c964617..b75140305 100644
 --- a/youtube_dl/update.py
 +++ b/youtube_dl/update.py
 @@ -7,6 +7,7 @@ import hashlib
@@ -568,8 +568,8 @@ index 002ea7f33..702b6d7d6 100644
 +import time
  from zipimport import zipimporter
  
- from .utils import encode_compat_str
-@@ -31,10 +32,9 @@ def rsa_verify(message, signature, key):
+ from .compat import compat_realpath
+@@ -32,10 +33,9 @@ def rsa_verify(message, signature, key):
  def update_self(to_screen, verbose, opener):
      """Update the program file with the latest version from the repository"""
  
@@ -581,7 +581,7 @@ index 002ea7f33..702b6d7d6 100644
  
      if not isinstance(globals().get('__loader__'), zipimporter) and not hasattr(sys, 'frozen'):
          to_screen('It looks like you installed youtube-dl with a package manager, pip, setup.py or a tarball. Please use that to update.')
-@@ -61,19 +61,14 @@ def update_self(to_screen, verbose, opener):
+@@ -62,19 +62,14 @@ def update_self(to_screen, verbose, opener):
              to_screen(encode_compat_str(traceback.format_exc()))
          to_screen('ERROR: can\'t obtain versions info. Please try again later.')
          return
