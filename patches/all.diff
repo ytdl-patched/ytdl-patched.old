@@ -150,7 +150,7 @@ index eaae5e484..a349da48a 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index a202a0449..bb805ab3a 100644
+index a202a0449..bcbe56ac6 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -331,6 +331,7 @@ from .expotv import ExpoTVIE
@@ -165,12 +165,12 @@ index a202a0449..bb805ab3a 100644
      MovieFapIE,
  )
  from .toggle import ToggleIE
-+from .tokyomotion2 import (
-+    TokyoMotion2IE,
-+    TokyoMotionUser2IE,
-+    TokyoMotionUserFavs2IE,
-+    TokyoMotionSearches2IE,
-+    TokyoMotionScanner2IE,
++from .tokyomotion import (
++    TokyoMotionIE,
++    TokyoMotionUserIE,
++    TokyoMotionUserFavsIE,
++    TokyoMotionSearchesIE,
++    TokyoMotionScannerIE,
 +)
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
@@ -234,11 +234,11 @@ index 000000000..2be9f39f3
 +            'age_limit': 18,
 +        })
 +        return entry
-diff --git a/youtube_dl/extractor/tokyomotion2.py b/youtube_dl/extractor/tokyomotion2.py
+diff --git a/youtube_dl/extractor/tokyomotion.py b/youtube_dl/extractor/tokyomotion.py
 new file mode 100644
-index 000000000..643c67b2f
+index 000000000..6cc9f7029
 --- /dev/null
-+++ b/youtube_dl/extractor/tokyomotion2.py
++++ b/youtube_dl/extractor/tokyomotion.py
 @@ -0,0 +1,127 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
@@ -259,7 +259,7 @@ index 000000000..643c67b2f
 +except ImportError:
 +    from urllib.parse import quote
 +
-+class TokyoMotion2BaseIE(InfoExtractor):
++class TokyoMotionBaseIE(InfoExtractor):
 +    IE_DESC = False  # Do not list
 +    def _download_page(self, url, video_id, note=None):
 +        # This fails
@@ -271,9 +271,9 @@ index 000000000..643c67b2f
 +        return self._webpage_read_content(full_response, url, video_id)
 +
 +    def _int_id(self, url):
-+        if '_VALID_URL_RE' not in TokyoMotion2IE.__dict__:
-+            TokyoMotion2IE._VALID_URL_RE = re.compile(TokyoMotion2IE._VALID_URL)
-+        m = TokyoMotion2IE._VALID_URL_RE.match(url)
++        if '_VALID_URL_RE' not in TokyoMotionIE.__dict__:
++            TokyoMotionIE._VALID_URL_RE = re.compile(TokyoMotionIE._VALID_URL)
++        m = TokyoMotionIE._VALID_URL_RE.match(url)
 +        return int(compat_str(m.group('id')))
 +
 +    def _extract_video_urls(self, variant, webpage):
@@ -292,7 +292,7 @@ index 000000000..643c67b2f
 +                break
 +        return (self.url_result(url) for url in sorted(set(all_matches), key=self._int_id))
 +
-+class TokyoMotionPlaylistBase2IE(TokyoMotion2BaseIE):
++class TokyoMotionPlaylistBaseIE(TokyoMotionBaseIE):
 +    IE_DESC = False  # Do not list
 +    def _real_extract(self, url):
 +        user_id = self._match_id(url)
@@ -300,7 +300,7 @@ index 000000000..643c67b2f
 +        matches = self._do_paging(self.USER_VIDEOS_FULL_URL, variant, user_id)
 +        return self.playlist_result(matches, user_id, self.TITLE % user_id)
 +
-+class TokyoMotion2IE(TokyoMotion2BaseIE):
++class TokyoMotionIE(TokyoMotionBaseIE):
 +    IE_NAME = 'tokyomotion'
 +    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]+)(?:#.*)?'
 +    _TEST = {
@@ -334,28 +334,28 @@ index 000000000..643c67b2f
 +        })
 +        return entry
 +
-+class TokyoMotionUser2IE(TokyoMotionPlaylistBase2IE):
++class TokyoMotionUserIE(TokyoMotionPlaylistBaseIE):
 +    IE_NAME = 'tokyomotion:user'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)(?:/videos)?'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/videos?page=%d'
 +    TITLE = 'Uploads from %s'
 +
-+class TokyoMotionUserFavs2IE(TokyoMotionPlaylistBase2IE):
++class TokyoMotionUserFavsIE(TokyoMotionPlaylistBaseIE):
 +    IE_NAME = 'tokyomotion:user:favs'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/user/(?P<id>[^/]+)/favorite/videos'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/user/%s/favorite/videos?page=%d'
 +    TITLE = 'Favorites from %s'
 +
-+class TokyoMotionSearches2IE(TokyoMotionPlaylistBase2IE):
++class TokyoMotionSearchesIE(TokyoMotionPlaylistBaseIE):
 +    IE_NAME = 'tokyomotion:searches'
 +    _VALID_URL = r'https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/search\?search_query=(?P<id>[^/&]+)(?:&search_type=videos)?(?:&page=\d+)?'
 +    _TEST = {}
 +    USER_VIDEOS_FULL_URL = 'https://www.%smotion.net/search?search_query=%s&search_type=videos&page=%d'
 +    TITLE = 'Search results for %s'
 +
-+class TokyoMotionScanner2IE(TokyoMotion2BaseIE):
++class TokyoMotionScannerIE(TokyoMotionBaseIE):
 +    IE_DESC = False  # Do not list
 +    IE_NAME = 'tokyomotion:scanner'
 +    _VALID_URL = r'tmscan:https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/(?P<id>.*)'
