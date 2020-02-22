@@ -368,7 +368,7 @@ index 000000000..6cc9f7029
 +        playlist = (self.url_result(url) for url in sorted(set(matches), key=self._int_id))
 +        return self.playlist_result(playlist, user_id, 'Scanned results for %s' % url)
 diff --git a/youtube_dl/extractor/twitcasting.py b/youtube_dl/extractor/twitcasting.py
-index 2dbe89f5b..de39207f1 100644
+index 2dbe89f5b..bbc8b24b9 100644
 --- a/youtube_dl/extractor/twitcasting.py
 +++ b/youtube_dl/extractor/twitcasting.py
 @@ -2,13 +2,17 @@
@@ -391,7 +391,7 @@ index 2dbe89f5b..de39207f1 100644
      _TESTS = [{
          'url': 'https://twitcasting.tv/ivetesangalo/movie/2357609',
          'md5': '745243cad58c4681dc752490f7540d7f',
-@@ -50,26 +54,60 @@ class TwitCastingIE(InfoExtractor):
+@@ -50,26 +54,61 @@ class TwitCastingIE(InfoExtractor):
              request_data = urlencode_postdata({
                  'password': video_password,
              })
@@ -461,6 +461,7 @@ index 2dbe89f5b..de39207f1 100644
 +        if not m3u8_url:
 +            raise ExtractorError('Failed to extract m3u8 url', expected=False)
 +
++        m3u8_url = m3u8_url.replace('\/', '/')
 +        formats = self._extract_m3u8_formats(
 +             m3u8_url, video_id, ext='mp4', entry_protocol='m3u8_native',
 +             m3u8_id='hls')
@@ -468,7 +469,7 @@ index 2dbe89f5b..de39207f1 100644
  
          return {
              'id': video_id,
-@@ -78,4 +116,5 @@ class TwitCastingIE(InfoExtractor):
+@@ -78,4 +117,5 @@ class TwitCastingIE(InfoExtractor):
              'thumbnail': thumbnail,
              'uploader_id': uploader_id,
              'formats': formats,
