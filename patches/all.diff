@@ -12,7 +12,7 @@ index 3e17365b8..5b3e54e7f 100644
  # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
  SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index f5cb46308..7401e5415 100755
+index b09cb0a79..cc5d50a97 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
 @@ -1,4 +1,4 @@
@@ -150,7 +150,7 @@ index eaae5e484..a349da48a 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index a202a0449..bcbe56ac6 100644
+index 64d1fa251..399a7063f 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -331,6 +331,7 @@ from .expotv import ExpoTVIE
@@ -161,7 +161,7 @@ index a202a0449..bcbe56ac6 100644
  from .facebook import (
      FacebookIE,
      FacebookPluginsVideoIE,
-@@ -1146,6 +1147,13 @@ from .tnaflix import (
+@@ -1145,6 +1146,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -175,7 +175,7 @@ index a202a0449..bcbe56ac6 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
-@@ -1288,6 +1296,7 @@ from .vice import (
+@@ -1287,6 +1295,7 @@ from .vice import (
  from .vidbit import VidbitIE
  from .viddler import ViddlerIE
  from .videa import VideaIE
