@@ -545,6 +545,19 @@ index 000000000..88724d365
 +                'vcodec': 'none' if cur_media_type == 'audio' else None,
 +            }]
 +        return formats
+diff --git a/youtube_dl/options.py b/youtube_dl/options.py
+index 1ffabc62b..8b19b86fc 100644
+--- a/youtube_dl/options.py
++++ b/youtube_dl/options.py
+@@ -134,7 +134,7 @@ def parseOpts(overrideArguments=None):
+         action='help',
+         help='Print this help text and exit')
+     general.add_option(
+-        '-v', '--version',
++        '-V', '--version',
+         action='version',
+         help='Print program version and exit')
+     general.add_option(
 diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
 index fd3f921a8..016b743d6 100644
 --- a/youtube_dl/postprocessor/ffmpeg.py
