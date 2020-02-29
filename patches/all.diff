@@ -12,7 +12,7 @@ index 3e17365b8..5b3e54e7f 100644
  # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
  SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index 19370f62b..89b8dad44 100755
+index 19370f62b..f712de4f6 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
 @@ -1,4 +1,4 @@
@@ -62,15 +62,6 @@ index 19370f62b..89b8dad44 100755
                  if f in force_properties:
                      del force_properties[f]
              new_result = info.copy()
-@@ -1073,7 +1078,7 @@ class YoutubeDL(object):
-                 '*=': lambda attr, value: value in attr,
-             }
-             str_operator_rex = re.compile(r'''(?x)
--                \s*(?P<key>ext|acodec|vcodec|container|protocol|format_id)
-+                \s*(?P<key>ext|acodec|vcodec|container|protocol|format_id|title|fulltitle|filename)
-                 \s*(?P<negation>!\s*)?(?P<op>%s)(?P<none_inclusive>\s*\?)?
-                 \s*(?P<value>[a-zA-Z0-9._-]+)
-                 \s*$
 @@ -1882,8 +1887,7 @@ class YoutubeDL(object):
                          video_ext, audio_ext = video.get('ext'), audio.get('ext')
                          if video_ext and audio_ext:
