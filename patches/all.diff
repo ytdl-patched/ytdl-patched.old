@@ -12,7 +12,7 @@ index 3e17365b8..5b3e54e7f 100644
  # set SYSCONFDIR to /etc if PREFIX=/usr or PREFIX=/usr/local
  SYSCONFDIR = $(shell if [ $(PREFIX) = /usr -o $(PREFIX) = /usr/local ]; then echo /etc; else echo $(PREFIX)/etc; fi)
 diff --git a/youtube_dl/YoutubeDL.py b/youtube_dl/YoutubeDL.py
-index b09cb0a79..cc5d50a97 100755
+index 19370f62b..f712de4f6 100755
 --- a/youtube_dl/YoutubeDL.py
 +++ b/youtube_dl/YoutubeDL.py
 @@ -1,4 +1,4 @@
@@ -21,7 +21,7 @@ index b09cb0a79..cc5d50a97 100755
  # coding: utf-8
  
  from __future__ import absolute_import, unicode_literals
-@@ -561,7 +561,8 @@ class YoutubeDL(object):
+@@ -562,7 +562,8 @@ class YoutubeDL(object):
      def __exit__(self, *args):
          self.restore_console_title()
  
@@ -31,7 +31,7 @@ index b09cb0a79..cc5d50a97 100755
              self.cookiejar.save(ignore_discard=True, ignore_expires=True)
  
      def trouble(self, message=None, tb=None):
-@@ -847,7 +848,7 @@ class YoutubeDL(object):
+@@ -848,7 +849,7 @@ class YoutubeDL(object):
          """
          result_type = ie_result.get('_type', 'video')
  
@@ -40,7 +40,7 @@ index b09cb0a79..cc5d50a97 100755
              ie_result['url'] = sanitize_url(ie_result['url'])
              extract_flat = self.params.get('extract_flat', False)
              if ((extract_flat == 'in_playlist' and 'playlist' in extra_info)
-@@ -867,7 +868,7 @@ class YoutubeDL(object):
+@@ -868,7 +869,7 @@ class YoutubeDL(object):
                                       download,
                                       ie_key=ie_result.get('ie_key'),
                                       extra_info=extra_info)
@@ -49,7 +49,7 @@ index b09cb0a79..cc5d50a97 100755
              # Use the information from the embedding page
              info = self.extract_info(
                  ie_result['url'], ie_key=ie_result.get('ie_key'),
-@@ -881,7 +882,11 @@ class YoutubeDL(object):
+@@ -882,7 +883,11 @@ class YoutubeDL(object):
  
              force_properties = dict(
                  (k, v) for k, v in ie_result.items() if v is not None)
@@ -62,7 +62,7 @@ index b09cb0a79..cc5d50a97 100755
                  if f in force_properties:
                      del force_properties[f]
              new_result = info.copy()
-@@ -1881,8 +1886,7 @@ class YoutubeDL(object):
+@@ -1882,8 +1887,7 @@ class YoutubeDL(object):
                          video_ext, audio_ext = video.get('ext'), audio.get('ext')
                          if video_ext and audio_ext:
                              COMPATIBLE_EXTS = (
@@ -72,7 +72,7 @@ index b09cb0a79..cc5d50a97 100755
                              )
                              for exts in COMPATIBLE_EXTS:
                                  if video_ext in exts and audio_ext in exts:
-@@ -2324,8 +2328,11 @@ class YoutubeDL(object):
+@@ -2325,8 +2329,11 @@ class YoutubeDL(object):
          else:
              opts_cookiefile = expand_path(opts_cookiefile)
              self.cookiejar = YoutubeDLCookieJar(opts_cookiefile)
@@ -546,14 +546,14 @@ index 000000000..88724d365
 +            }]
 +        return formats
 diff --git a/youtube_dl/options.py b/youtube_dl/options.py
-index 1ffabc62b..8b19b86fc 100644
+index 8826b382c..8b19b86fc 100644
 --- a/youtube_dl/options.py
 +++ b/youtube_dl/options.py
 @@ -134,7 +134,7 @@ def parseOpts(overrideArguments=None):
          action='help',
          help='Print this help text and exit')
      general.add_option(
--        '-v', '--version',
+-        '--version',
 +        '-V', '--version',
          action='version',
          help='Print program version and exit')
@@ -620,7 +620,7 @@ index 84c964617..b75140305 100644
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
 diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
-index f6204692a..7dd92f019 100644
+index 8ccf25489..9fc657cde 100644
 --- a/youtube_dl/utils.py
 +++ b/youtube_dl/utils.py
 @@ -84,7 +84,13 @@ compiled_regex_type = type(re.compile(''))
