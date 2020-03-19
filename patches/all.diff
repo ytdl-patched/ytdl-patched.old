@@ -620,7 +620,7 @@ index 84c964617..b75140305 100644
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
 diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
-index 8ccf25489..9fc657cde 100644
+index 38262bee4..ad7c93a86 100644
 --- a/youtube_dl/utils.py
 +++ b/youtube_dl/utils.py
 @@ -84,7 +84,13 @@ compiled_regex_type = type(re.compile(''))
