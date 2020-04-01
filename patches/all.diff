@@ -150,10 +150,10 @@ index eaae5e484..a349da48a 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 64d1fa251..399a7063f 100644
+index ef803b8a7..a7399cf75 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -331,6 +331,7 @@ from .expotv import ExpoTVIE
+@@ -332,6 +332,7 @@ from .expotv import ExpoTVIE
  from .expressen import ExpressenIE
  from .extremetube import ExtremeTubeIE
  from .eyedotv import EyedoTVIE
@@ -161,7 +161,7 @@ index 64d1fa251..399a7063f 100644
  from .facebook import (
      FacebookIE,
      FacebookPluginsVideoIE,
-@@ -1145,6 +1146,13 @@ from .tnaflix import (
+@@ -1146,6 +1147,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -175,7 +175,7 @@ index 64d1fa251..399a7063f 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
-@@ -1287,6 +1295,7 @@ from .vice import (
+@@ -1288,6 +1296,7 @@ from .vice import (
  from .vidbit import VidbitIE
  from .viddler import ViddlerIE
  from .videa import VideaIE
