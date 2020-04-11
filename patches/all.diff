@@ -106,8 +106,40 @@ index 138f5fbec..6b473177e 100755
  from __future__ import unicode_literals
  
  # Execute with
+diff --git a/youtube_dl/downloader/common.py b/youtube_dl/downloader/common.py
+index 1cdba89cd..e951e4828 100644
+--- a/youtube_dl/downloader/common.py
++++ b/youtube_dl/downloader/common.py
+@@ -257,6 +257,8 @@ class FileDownloader(object):
+                 if s.get('elapsed') is not None:
+                     s['_elapsed_str'] = self.format_seconds(s['elapsed'])
+                     msg_template += ' in %(_elapsed_str)s'
++                if s.get('fragment_count') is not None:
++                    msg_template += ' (%(fragment_count)s fragments)'
+                 self._report_progress_status(
+                     msg_template % s, is_last_line=True)
+ 
+@@ -302,6 +304,8 @@ class FileDownloader(object):
+                     msg_template = '%(_downloaded_bytes_str)s at %(_speed_str)s'
+             else:
+                 msg_template = '%(_percent_str)s % at %(_speed_str)s ETA %(_eta_str)s'
++        if s.get('fragment_count') is not None and s.get('fragment_index') is not None:
++            msg_template += ' (%(fragment_index)d fragments of %(fragment_count)d)'
+ 
+         self._report_progress_status(msg_template % s)
+ 
+diff --git a/youtube_dl/downloader/fragment.py b/youtube_dl/downloader/fragment.py
+index 02f35459e..eb10f423e 100644
+--- a/youtube_dl/downloader/fragment.py
++++ b/youtube_dl/downloader/fragment.py
+@@ -266,4 +266,5 @@ class FragmentFD(FileDownloader):
+             'filename': ctx['filename'],
+             'status': 'finished',
+             'elapsed': elapsed,
++            'fragment_count': ctx['total_frags'],
+         })
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
-index eaae5e484..a349da48a 100644
+index c51a3a07d..c776e569c 100644
 --- a/youtube_dl/extractor/common.py
 +++ b/youtube_dl/extractor/common.py
 @@ -963,6 +963,9 @@ class InfoExtractor(object):
@@ -150,7 +182,7 @@ index eaae5e484..a349da48a 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index ef803b8a7..a7399cf75 100644
+index e407ab3d9..19ebcc45f 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -332,6 +332,7 @@ from .expotv import ExpoTVIE
@@ -161,7 +193,7 @@ index ef803b8a7..a7399cf75 100644
  from .facebook import (
      FacebookIE,
      FacebookPluginsVideoIE,
-@@ -1146,6 +1147,13 @@ from .tnaflix import (
+@@ -1149,6 +1150,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -175,7 +207,7 @@ index ef803b8a7..a7399cf75 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
-@@ -1288,6 +1296,7 @@ from .vice import (
+@@ -1291,6 +1299,7 @@ from .vice import (
  from .vidbit import VidbitIE
  from .viddler import ViddlerIE
  from .videa import VideaIE
