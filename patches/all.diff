@@ -578,7 +578,7 @@ index 000000000..88724d365
 +            }]
 +        return formats
 diff --git a/youtube_dl/options.py b/youtube_dl/options.py
-index 8826b382c..8b19b86fc 100644
+index 6d5ac62b3..900845013 100644
 --- a/youtube_dl/options.py
 +++ b/youtube_dl/options.py
 @@ -134,7 +134,7 @@ def parseOpts(overrideArguments=None):
@@ -591,9 +591,18 @@ index 8826b382c..8b19b86fc 100644
          help='Print program version and exit')
      general.add_option(
 diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
-index fd3f921a8..016b743d6 100644
+index fd3f921a8..7aa5d86b5 100644
 --- a/youtube_dl/postprocessor/ffmpeg.py
 +++ b/youtube_dl/postprocessor/ffmpeg.py
+@@ -220,7 +220,7 @@ class FFmpegPostProcessor(PostProcessor):
+         cmd = [encodeFilename(self.executable, True), encodeArgument('-y')]
+         # avconv does not have repeat option
+         if self.basename == 'ffmpeg':
+-            cmd += [encodeArgument('-loglevel'), encodeArgument('repeat+info')]
++            cmd += [encodeArgument('-loglevel'), encodeArgument('repeat+info'), encodeArgument('-hide_banner')]
+         cmd += (files_cmd
+                 + [encodeArgument(o) for o in opts]
+                 + [encodeFilename(self._ffmpeg_filename_argument(out_path), True)])
 @@ -362,6 +362,8 @@ class FFmpegVideoConvertorPP(FFmpegPostProcessor):
          options = []
          if self._preferedformat == 'avi':
