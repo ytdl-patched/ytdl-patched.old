@@ -46,3 +46,6 @@ jobs:
         git add .
         git commit -m "ytdl-patched: $VERSION"
         git push
+    - name: Trigger ytdl-info redeploy
+      run: |
+        curl -X POST https://api.zeit.co/v1/integrations/deploy/QmNcQeQdC5ZPYA7K1ChCsU6byzyBnnmnJK7ZGsfJ6Qiqpf/GlxyCqSWgk
