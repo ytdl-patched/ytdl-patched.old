@@ -139,7 +139,7 @@ index 02f35459e..eb10f423e 100644
 +            'fragment_count': ctx['total_frags'],
          })
 diff --git a/youtube_dl/extractor/common.py b/youtube_dl/extractor/common.py
-index c51a3a07d..c776e569c 100644
+index a61753b17..dddd3c9e1 100644
 --- a/youtube_dl/extractor/common.py
 +++ b/youtube_dl/extractor/common.py
 @@ -963,6 +963,9 @@ class InfoExtractor(object):
@@ -152,13 +152,20 @@ index c51a3a07d..c776e569c 100644
          video_info = {'_type': 'playlist',
                        'entries': entries}
          if playlist_id:
-@@ -1378,6 +1381,17 @@ class InfoExtractor(object):
+@@ -1401,6 +1404,24 @@ class InfoExtractor(object):
                      ext_preference = -1
                  audio_ext_preference = 0
  
 +            fmt_id = f.get('format_id') or 'none'
 +            if fmt_id.startswith('hls-'):
-+                hls_preference = int(fmt_id.split('-')[1])
++                _fmt_id = fmt_id.split('-')[1]
++                try:
++                    hls_preference = int(_fmt_id)
++                except:
++                    if _fmt_id[-1:] == 'p':
++                        hls_preference = int(_fmt_id[:-1])
++                    else:
++                        hls_preference = 0
 +            else:
 +                hls_preference = -100
 +
@@ -170,7 +177,7 @@ index c51a3a07d..c776e569c 100644
              return (
                  preference,
                  f.get('language_preference') if f.get('language_preference') is not None else -1,
-@@ -1394,7 +1408,9 @@ class InfoExtractor(object):
+@@ -1417,7 +1438,9 @@ class InfoExtractor(object):
                  f.get('fps') if f.get('fps') is not None else -1,
                  f.get('filesize_approx') if f.get('filesize_approx') is not None else -1,
                  f.get('source_preference') if f.get('source_preference') is not None else -1,
@@ -182,7 +189,7 @@ index c51a3a07d..c776e569c 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index e407ab3d9..19ebcc45f 100644
+index 4b3092028..019eebf95 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -332,6 +332,7 @@ from .expotv import ExpoTVIE
@@ -193,7 +200,7 @@ index e407ab3d9..19ebcc45f 100644
  from .facebook import (
      FacebookIE,
      FacebookPluginsVideoIE,
-@@ -1149,6 +1150,13 @@ from .tnaflix import (
+@@ -1159,6 +1160,13 @@ from .tnaflix import (
      MovieFapIE,
  )
  from .toggle import ToggleIE
@@ -207,7 +214,7 @@ index e407ab3d9..19ebcc45f 100644
  from .tonline import TOnlineIE
  from .toongoggles import ToonGogglesIE
  from .toutv import TouTvIE
-@@ -1291,6 +1299,7 @@ from .vice import (
+@@ -1301,6 +1309,7 @@ from .vice import (
  from .vidbit import VidbitIE
  from .viddler import ViddlerIE
  from .videa import VideaIE
@@ -591,7 +598,7 @@ index 6d5ac62b3..900845013 100644
          help='Print program version and exit')
      general.add_option(
 diff --git a/youtube_dl/postprocessor/ffmpeg.py b/youtube_dl/postprocessor/ffmpeg.py
-index fd3f921a8..7aa5d86b5 100644
+index 5f7298345..f94c0e0d0 100644
 --- a/youtube_dl/postprocessor/ffmpeg.py
 +++ b/youtube_dl/postprocessor/ffmpeg.py
 @@ -220,7 +220,7 @@ class FFmpegPostProcessor(PostProcessor):
@@ -661,10 +668,10 @@ index 84c964617..b75140305 100644
          to_screen('youtube-dl is up to date (%s)' % __version__)
          return
 diff --git a/youtube_dl/utils.py b/youtube_dl/utils.py
-index 38262bee4..ad7c93a86 100644
+index d1eca3760..33971063b 100644
 --- a/youtube_dl/utils.py
 +++ b/youtube_dl/utils.py
-@@ -84,7 +84,13 @@ compiled_regex_type = type(re.compile(''))
+@@ -86,7 +86,13 @@ compiled_regex_type = type(re.compile(''))
  
  
  def random_user_agent():
@@ -679,7 +686,7 @@ index 38262bee4..ad7c93a86 100644
      _CHROME_VERSIONS = (
          '74.0.3729.129',
          '76.0.3780.3',
-@@ -1663,7 +1669,7 @@ def random_user_agent():
+@@ -1665,7 +1671,7 @@ def random_user_agent():
          '70.0.3513.0',
          '69.0.3497.28',
      )
