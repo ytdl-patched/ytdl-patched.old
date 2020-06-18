@@ -274,16 +274,18 @@ index 000000000..2be9f39f3
 +        })
 +        return entry
 diff --git a/youtube_dl/extractor/generic.py b/youtube_dl/extractor/generic.py
-index 355067a50..bdbec0acb 100644
+index 355067a50..09ec49459 100644
 --- a/youtube_dl/extractor/generic.py
 +++ b/youtube_dl/extractor/generic.py
-@@ -2280,6 +2280,12 @@ class GenericIE(InfoExtractor):
+@@ -2280,6 +2280,14 @@ class GenericIE(InfoExtractor):
                      default_search += ':'
                  return self.url_result(default_search + url)
  
 +        host = parsed_url.netloc
 +        if ':' in host:
 +            host = host[:host.index(':')]
++        if host[:4] == 'www.':
++            host = host[4:]
 +        if host == 'pinktower.com':
 +            return self.url_result(parsed_url.query)
 +
