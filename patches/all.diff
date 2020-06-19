@@ -282,7 +282,7 @@ index 000000000..2be9f39f3
 +        })
 +        return entry
 diff --git a/youtube_dl/extractor/generic.py b/youtube_dl/extractor/generic.py
-index 355067a50..09ec49459 100644
+index 355067a50..0e1422e28 100644
 --- a/youtube_dl/extractor/generic.py
 +++ b/youtube_dl/extractor/generic.py
 @@ -2280,6 +2280,14 @@ class GenericIE(InfoExtractor):
@@ -294,7 +294,7 @@ index 355067a50..09ec49459 100644
 +            host = host[:host.index(':')]
 +        if host[:4] == 'www.':
 +            host = host[4:]
-+        if host == 'pinktower.com':
++        if host == 'pinktower.com' or host == 'jump.5ch.net':
 +            return self.url_result(parsed_url.query)
 +
          url, smuggled_data = unsmuggle_url(url)
