@@ -680,6 +680,26 @@ index 000000000..cba2d8d10
 +            })
 +        return result
 \ No newline at end of file
+diff --git a/youtube_dl/extractor/youtube.py b/youtube_dl/extractor/youtube.py
+index 54ec76db5..b86d38515 100644
+--- a/youtube_dl/extractor/youtube.py
++++ b/youtube_dl/extractor/youtube.py
+@@ -372,6 +372,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
+                      (
+                          (?:https?://|//)                                    # http(s):// or protocol-independent URL
+                          (?:(?:(?:(?:\w+\.)?[yY][oO][uU][tT][uU][bB][eE](?:-nocookie|kids)?\.com/|
++                            i\.ytimg\.com/vi/|
+                             (?:www\.)?deturl\.com/www\.youtube\.com/|
+                             (?:www\.)?pwnyoutube\.com/|
+                             (?:www\.)?hooktube\.com/|
+@@ -2455,6 +2456,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
+                 raise ExtractorError(
+                     'YouTube said: %s' % reason,
+                     expected=True, video_id=video_id)
++            self.to_screen(player_response['streamingData']['licenseInfos'])
+             if video_info.get('license_info') or try_get(player_response, lambda x: x['streamingData']['licenseInfos']):
+                 raise ExtractorError('This video is DRM protected.', expected=True)
+ 
 diff --git a/youtube_dl/options.py b/youtube_dl/options.py
 index 6d5ac62b3..900845013 100644
 --- a/youtube_dl/options.py
