@@ -366,10 +366,10 @@ index b061850a1..f035cecdf 100644
                  video_url = media.get('video_url')
 diff --git a/youtube_dl/extractor/tokyomotion.py b/youtube_dl/extractor/tokyomotion.py
 new file mode 100644
-index 000000000..6cc9f7029
+index 000000000..e71f2fb3e
 --- /dev/null
 +++ b/youtube_dl/extractor/tokyomotion.py
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,136 @@
 +# coding: utf-8
 +from __future__ import unicode_literals
 +
@@ -432,7 +432,7 @@ index 000000000..6cc9f7029
 +
 +class TokyoMotionIE(TokyoMotionBaseIE):
 +    IE_NAME = 'tokyomotion'
-+    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]+)(?:#.*)?'
++    _VALID_URL = r'(?P<url>https?://(?:www\.)?(?P<variant>tokyo|osaka)motion\.net/video/(?P<id>\d+)/[^#?&]*)(?:#.*)?'
 +    _TEST = {
 +        'url': 'https://www.tokyomotion.net/video/915034/%E9%80%86%E3%81%95',
 +        'info_dict': {
@@ -463,6 +463,15 @@ index 000000000..6cc9f7029
 +            'series': variant_name,
 +        })
 +        return entry
++
++#class TokyoMotionCorruptedUrlIE(TokyoMotionBaseIE):
++#    IE_NAME = 'tokyomotion:corrupted'
++#    _VALID_URL = r'https?://(?:www\.)?(?:tokyo|osaka)motion\.net/video/(?P<id>\d+)/?(?:#.*)?'
++#    def _real_extract(self, url):
++#        video_id = self._match_id(url)
++#        self.to_screen('Given URL looks corrupted, trying to repair')
++#        repaired = url.split('#')[0] + 'a'
++#        return self.url_result(repaired)
 +
 +class TokyoMotionUserIE(TokyoMotionPlaylistBaseIE):
 +    IE_NAME = 'tokyomotion:user'
