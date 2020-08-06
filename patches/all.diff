@@ -311,13 +311,17 @@ index 435561147..2e0706cd3 100644
          refer = url.replace('/content/', '/a/content/') if '/a/content/' not in url else url
  
 diff --git a/youtube_dl/extractor/generic.py b/youtube_dl/extractor/generic.py
-index 355067a50..0e1422e28 100644
+index 355067a50..ee86a22bc 100644
 --- a/youtube_dl/extractor/generic.py
 +++ b/youtube_dl/extractor/generic.py
-@@ -2280,6 +2280,14 @@ class GenericIE(InfoExtractor):
+@@ -2279,6 +2279,17 @@ class GenericIE(InfoExtractor):
+                 if ':' not in default_search:
                      default_search += ':'
                  return self.url_result(default_search + url)
- 
++        elif parsed_url.scheme == 'view-source':
++            # remove "view-source:"
++            return self.url_result(url[:url.index(':')])
++
 +        host = parsed_url.netloc
 +        if ':' in host:
 +            host = host[:host.index(':')]
@@ -325,10 +329,9 @@ index 355067a50..0e1422e28 100644
 +            host = host[4:]
 +        if host == 'pinktower.com' or host == 'jump.5ch.net':
 +            return self.url_result(parsed_url.query)
-+
+ 
          url, smuggled_data = unsmuggle_url(url)
          force_videoid = None
-         is_intentional = smuggled_data and smuggled_data.get('to_generic')
 diff --git a/youtube_dl/extractor/instagram.py b/youtube_dl/extractor/instagram.py
 index b061850a1..f035cecdf 100644
 --- a/youtube_dl/extractor/instagram.py
