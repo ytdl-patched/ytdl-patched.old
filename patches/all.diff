@@ -189,7 +189,7 @@ index a61753b17..dddd3c9e1 100644
          formats.sort(key=_formats_key)
  
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 4b3092028..3fd3f9ded 100644
+index 4b3092028..4cf53d948 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
 @@ -332,6 +332,7 @@ from .expotv import ExpoTVIE
@@ -222,7 +222,15 @@ index 4b3092028..3fd3f9ded 100644
  from .videodetective import VideoDetectiveIE
  from .videofyme import VideofyMeIE
  from .videomore import (
-@@ -1411,6 +1420,7 @@ from .weibo import (
+@@ -1322,6 +1331,7 @@ from .viewlift import (
+     ViewLiftIE,
+     ViewLiftEmbedIE,
+ )
++from .viewsource import ViewSourceIE
+ from .viidea import ViideaIE
+ from .vimeo import (
+     VimeoIE,
+@@ -1411,6 +1421,7 @@ from .weibo import (
  )
  from .weiqitv import WeiqiTVIE
  from .wistia import WistiaIE
